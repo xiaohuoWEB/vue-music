@@ -1,0 +1,5 @@
+一.  package.json文件新增babel-runtime,fastclick,babel-polyfill
+1：babel-runtime 安装："babel-runtime": "^6.0.0" | 对es6语法做转义
+2：fastclick 安装："fastclick": "^1.0.6" | 解决移动端300m 延迟问题
+3：babel-polyfill 安装："babel-polyfill": "^6.2.0" | 对 es6 api 打补丁
+
