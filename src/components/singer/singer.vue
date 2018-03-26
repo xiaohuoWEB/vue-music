@@ -1,6 +1,6 @@
 <template>
-  <div class="search">
-    search
+  <div class="singer">
+    singer
   </div>
 </template>
 

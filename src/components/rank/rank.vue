@@ -1,6 +1,6 @@
 <template>
-  <div class="search">
-    search
+  <div class="rahk">
+    rahk
   </div>
 </template>
 
