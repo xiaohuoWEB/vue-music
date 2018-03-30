@@ -2,10 +2,10 @@
   <div class="slider" ref="slider">
     <div class="slider-group" ref="sliderGroup">
       <slot>
-      </slot>
+      </slot> <!-- 插槽，外部引入slider的时候，slider包裹的节点会在这里面 -->
     </div>
     <div class="dots">
-      <span class="dot" v-for="(item, index) in dots" :key="index"></span>
+      <span class="dot" :class="{active:currentPageIndex === index}" v-for="(item, index) in dots" :key="index"></span>
     </div>
   </div>
 </template>
@@ -32,20 +32,35 @@
       },
       interval: {
         type: Number,
-        default: 4000
+        default: 2000
       }
     },
-    mounted() {
+    mounted() { // 完成挂载
       setTimeout(() => {
         this._setSliderWidth()
         this._initDots()
         this._initSlider()
-      }, 20)
+        if (this.autoPlay) {
+          this._play()
+        }
+        window.addEventListener('resize', () => {
+          if (!this.slider) {
+            return
+          }
+          this._setSliderWidth(true)
+          this.slider.refresh()
+        })
+      }, 20)//  浏览器的刷新一般是17毫秒
     },
-    methods: {
-      _setSliderWidth(isResize) {
-        this.children = this.$refs.sliderGroup.children
+    activated() {
+      if (this.autoPlay) {
+        this._play()
+      }
+    },
 
+    methods: { // 方法
+      _setSliderWidth(isResize) { // 计算宽度
+        this.children = this.$refs.sliderGroup.children
         let width = 0
         let sliderWidth = this.$refs.slider.clientWidth
         for (let i = 0; i < this.children.length; i++) {
@@ -55,52 +70,51 @@
           child.style.width = sliderWidth + 'px'
           width += sliderWidth
         }
-        if (this.loop && !isResize) {
-          width += 2 * sliderWidth
+        if (this.loop && !isResize) { // 如果是轮播图&&如果是resize的情况下
+          width += 2 * sliderWidth // 如果是窗口缩放情况下 改变图片宽度
         }
         this.$refs.sliderGroup.style.width = width + 'px'
       },
       _initSlider() {
         this.slider = new BScroll(this.$refs.slider, {
-          scrollX: true,
+          scrollX: true, // 滚动方向
           scrollY: false,
-          momentum: false,
-          snap: {
+          momentum: false, // 当快速滑动时是否开启滑动惯性
+          snap: { // 为slider组件使用
             loop: this.loop, // 是否无缝循环轮播
             threshold: 0.3, // 用手指滑动时页面可切换的阀值，大于这个阀值时可以滑动到下一页
             speed: 400 // 轮播图切换的动画时间
           },
-          click: true
+          click: true // 是否派发click事件
         })
 
-        this.slider.on('scrollEnd', () => {
-          let pageIndex = this.slider.getCurrentPage().pageX
-          if (this.loop) {
-            pageIndex -= 1
-          }
-          this.currentPageIndex = pageIndex
+        this.slider.on('scrollEnd', () => { // 派发scrollEnd事件,获取当前页currentPageIndex
+          let pageIndex = this.slider.getCurrentPage().pageX // 获取索引
+          /* if (this.loop) { // 如果是循环
+             pageIndex += 0 // 因为循环模式下默认会节点拷贝了，所以实际index 应该 -1
+          } */
+          this.currentPageIndex = pageIndex // 赋值给当前currentPageIndex
 
-          if (this.autoPlay) {
+          if (this.autoPlay) { // 判断如果是自动轮播
+            clearTimeout(this.timer) // 清除定时器 重新载入轮播
             this._play()
           }
         })
-
-        this.slider.on('beforeScrollStart', () => {
+        /* this.slider.on('beforeScrollStart', () => { // 手动滑动之前先判断是否是轮播状态
           if (this.autoPlay) {
+            console.log('test')
             clearTimeout(this.timer)
           }
-        })
+        }) */
       },
-      _initDots() {
-        this.dots = new Array(this.children.length)
+      _initDots() { // 初始化点的数量
+        this.dots = new Array(this.children.length) // 长度根据节点length
       },
       _play() {
-        let pageIndex = this.currentPageIndex + 1
-        if (this.loop) {
-          pageIndex += 1
-        }
+        // clearTimeout(this.timer)
+        // let pageIndex = this.currentPageIndex + 1 // 此方法可用,属于另一种方法
         this.timer = setTimeout(() => {
-          this.slider.goToPage(pageIndex, 0, 400)
+          this.slider.next() // 下一张图片
         }, this.interval)
       }
     }
