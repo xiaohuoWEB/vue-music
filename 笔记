@@ -6,3 +6,8 @@
 二、  需要安装各个loader依赖，否则会导致找不到依赖报错
 cnpm install stylus-loader css-loader style-loader --save-dev
 
+三、  推荐中的 热门歌单请求QQ音乐接口时候遇到大坑，因为vuecli 已经更新版本， build中无dev-serverjs 文件
+解决方法：见build 中 webpack.dev.conf.js  nodejs代理跨域配置
+
+
+

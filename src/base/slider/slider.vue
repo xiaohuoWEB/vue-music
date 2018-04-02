@@ -84,8 +84,7 @@
             loop: this.loop, // 是否无缝循环轮播
             threshold: 0.3, // 用手指滑动时页面可切换的阀值，大于这个阀值时可以滑动到下一页
             speed: 400 // 轮播图切换的动画时间
-          },
-          click: true // 是否派发click事件
+          }
         })
 
         this.slider.on('scrollEnd', () => { // 派发scrollEnd事件,获取当前页currentPageIndex

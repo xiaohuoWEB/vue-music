@@ -1,48 +1,77 @@
 <template>
   <div class="recommend" ref="recommend">
-    <div class="recommend-content">
-      <div v-if="recommends.length" class="slider-wrapper">
-        <slider>
-          <div v-for="(item,index) in recommends" :key="index">
-            <a :href="item.linkUrl">
-              <img :src="item.picUrl">
-            </a>
-          </div>
-        </slider>
-      </div>
-      <div class="recommend-list">
-        <div class="list-title">热门歌单推荐</div>
+    <div class="recommend-content" ref="scroll">
+      <div>
+        <div v-if="recommends.length" class="slider-wrapper">
+          <slider>
+            <div v-for="(item,index) in recommends" :key="index">
+              <a :href="item.linkUrl">
+                <img :src="item.picUrl">
+              </a>
+            </div>
+          </slider>
+        </div>
+        <div class="recommend-list">
+          <h1 class="list-title">热门歌单推荐</h1>
+          <ul>
+            <li class="item" v-for="(item,index) in discList" :key="index">
+              <div class="icon"><img width="60" height="60" :src="item.imgurl"></div>
+              <div class="text">
+                <h2 class="name" v-html="item.creator.name"></h2>
+                <p class="desc" v-html="item.dissname"></p>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
+  import BScroll from 'better-scroll'
   import Slider from 'base/slider/slider'
-  import {getRecommend} from 'api/recommend'
+  // import Scroll from 'base/Scroll/Scroll'
+  import {getRecommend, getDiscList} from 'api/recommend'
   import {ERR_OK} from 'api/config'
 
   export default {
     data() {
       return {
-        recommends: []
+        recommends: [],
+        discList: []
       }
     },
     created() {
-      this._getRecommend()
+      this._getRecommend() // 获取轮播图请求数据
+      this._getDiscList() // 获取全部歌单
+      this.$nextTick(() => {
+        this._scrolls()
+      })
     },
     methods: {
       _getRecommend() {
         getRecommend().then((res) => {
           if (res.code === ERR_OK) {
-            console.log(res.data.slider)
+            // console.log(res.data.slider)
             this.recommends = res.data.slider
           }
         })
+      },
+      _getDiscList() {
+        getDiscList().then((res) => {
+          if (res.code === ERR_OK) {
+            this.discList = res.data.list
+          }
+        })
+      },
+      _scrolls() {
+        this.scrollss = new BScroll(this.$refs.scroll, {})
       }
     },
     components: {
       Slider
+      // Scroll
     }
   }
 </script>
@@ -69,4 +98,26 @@
           text-align: center
           font-size: $font-size-medium
           color: $color-theme
+        .item
+          display: flex
+          box-sizing: border-box
+          align-items: center
+          padding: 0 20px 20px 20px
+          .icon
+            flex: 0 0 60px
+            width: 60px
+            padding-right: 20px
+          .text
+            display: flex
+            flex-direction: column
+            justify-content: center
+            flex: 1
+            line-height: 20px
+            overflow: hidden
+            font-size: $font-size-medium
+            .name
+              margin-bottom: 10px
+              color: $color-text
+            .desc
+              color: $color-text-d
 </style>
