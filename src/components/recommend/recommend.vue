@@ -1,6 +1,6 @@
 <template>
   <div class="recommend" ref="recommend">
-    <div class="recommend-content" ref="scroll">
+    <scroll class="recommend-content" ref="scroll" :data="discList">
       <div>
         <div v-if="recommends.length" class="slider-wrapper">
           <slider>
@@ -24,14 +24,14 @@
           </ul>
         </div>
       </div>
-    </div>
+    </scroll>
+    <router-view></router-view>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
-  import BScroll from 'better-scroll'
   import Slider from 'base/slider/slider'
-  // import Scroll from 'base/Scroll/Scroll'
+  import Scroll from 'base/scroll/scroll'
   import {getRecommend, getDiscList} from 'api/recommend'
   import {ERR_OK} from 'api/config'
 
@@ -45,9 +45,6 @@
     created() {
       this._getRecommend() // 获取轮播图请求数据
       this._getDiscList() // 获取全部歌单
-      this.$nextTick(() => {
-        this._scrolls()
-      })
     },
     methods: {
       _getRecommend() {
@@ -64,14 +61,11 @@
             this.discList = res.data.list
           }
         })
-      },
-      _scrolls() {
-        this.scrollss = new BScroll(this.$refs.scroll, {})
       }
     },
     components: {
-      Slider
-      // Scroll
+      Slider,
+      Scroll
     }
   }
 </script>

@@ -2,7 +2,7 @@ import jsonp from 'common/js/jsonp'
 import {commonParams, options} from './config'
 import axios from 'axios'
 
-export function getRecommend() {
+export function getRecommend() { // 轮播图接口
   const url = 'https://c.y.qq.com/musichall/fcgi-bin/fcg_yqqhomepagerecommend.fcg'
 
   const data = Object.assign({}, commonParams, {
@@ -13,7 +13,7 @@ export function getRecommend() {
   return jsonp(url, data, options)
 }
 
-export function getDiscList() {
+export function getDiscList() { // 推荐歌曲立标接口
   const url = '/api/getDiscList'
 
   const data = Object.assign({}, commonParams, {
