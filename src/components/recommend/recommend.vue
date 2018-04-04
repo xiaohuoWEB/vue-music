@@ -6,7 +6,7 @@
           <slider>
             <div v-for="(item,index) in recommends" :key="index">
               <a :href="item.linkUrl">
-                <img :src="item.picUrl">
+                <img @load="loadImage" :src="item.picUrl">
               </a>
             </div>
           </slider>
@@ -61,6 +61,13 @@
             this.discList = res.data.list
           }
         })
+      },
+      loadImage() {
+        if (!this.checkLoaded) {
+          console.log(this.checkLoaded)
+          this.$refs.scroll.refresh()
+          this.checkLoaded = true
+        }
       }
     },
     components: {
