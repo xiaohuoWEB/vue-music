@@ -15,7 +15,7 @@
           <h1 class="list-title">热门歌单推荐</h1>
           <ul>
             <li class="item" v-for="(item,index) in discList" :key="index">
-              <div class="icon"><img width="60" height="60" :src="item.imgurl"></div>
+              <div class="icon"><img width="60" height="60" v-lazy="item.imgurl"></div>
               <div class="text">
                 <h2 class="name" v-html="item.creator.name"></h2>
                 <p class="desc" v-html="item.dissname"></p>
@@ -64,7 +64,6 @@
       },
       loadImage() {
         if (!this.checkLoaded) {
-          console.log(this.checkLoaded)
           this.$refs.scroll.refresh()
           this.checkLoaded = true
         }

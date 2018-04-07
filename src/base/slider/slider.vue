@@ -44,7 +44,7 @@
           this._play()
         }
         window.addEventListener('resize', () => {
-          if (!this.slider) {
+          if (!this.slider || !this.slider.enable) {
             return
           }
           this._setSliderWidth(true)
