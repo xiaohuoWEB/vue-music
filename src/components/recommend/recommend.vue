@@ -24,15 +24,19 @@
           </ul>
         </div>
       </div>
+      <div class="loading-contain" v-show="!discList.length">
+        <loading></loading>
+      </div>
     </scroll>
     <router-view></router-view>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
+  import Loading from 'base/loading/loading'
   import Slider from 'base/slider/slider'
   import Scroll from 'base/scroll/scroll'
-  import {getRecommend, getDiscList} from 'api/recommend'
+  import {getRecommend, getDiscList} from 'api/recommend' // 调用数据接口
   import {ERR_OK} from 'api/config'
 
   export default {
@@ -71,7 +75,8 @@
     },
     components: {
       Slider,
-      Scroll
+      Scroll,
+      Loading
     }
   }
 </script>
@@ -120,4 +125,9 @@
               color: $color-text
             .desc
               color: $color-text-d
+      .loading-contain
+        position: absolute
+        width: 100%
+        top: 50%
+        transform: translateY(-50%)
 </style>
