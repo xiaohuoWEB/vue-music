@@ -31,5 +31,16 @@ Vue.use(VueLazyload, {
   loading: require('common/image/default.png')
 })
 最后在 组件中使用<img width="60" height="60" v-lazy="item.imgurl">
+五、  组件名称定义
+例如： singer.vue 引入 list-view 组件
+<template>
+  <div class="singer">
+    <list-view :data="singers" ref="list"></list-view>
+  </div>
+</template>
+<script type="text/ecmascript-6">
+  import ListView from 'base/listview/listview'
+  因为 ListView 是驼峰命名大写字母开头 ，所以组件中 要以 "-"  list-view 分割
+<script>
 
 

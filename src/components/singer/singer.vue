@@ -1,6 +1,6 @@
 <template>
   <div class="singer">
-    <list-view></list-view>
+    <list-view :data="singers" ref="list"></list-view>
   </div>
 </template>
 
@@ -12,7 +12,6 @@
 
   const HOT_NAME = '热门'
   const HOT_SINGER_LEN = 10
-
   export default {
     data() {
       return {
@@ -31,15 +30,15 @@
         })
       },
       _normalizeSinger(list) {
-        let map = {
+        let map = { // 封装热门歌手列表map
           hot: {
             title: HOT_NAME,
             items: []
           }
         }
-        list.forEach((item, index) => {
-          if (index < HOT_SINGER_LEN) {
-            map.hot.items.push(new Singer({
+        list.forEach((item, index) => { // 遍历api接口数据前10条数据当作 热门歌手
+          if (index < HOT_SINGER_LEN) { // index:10条
+            map.hot.items.push(new Singer({ // 向热门map 里添加
               name: item.Fsinger_name,
               id: item.Fsinger_mid
             }))
@@ -61,15 +60,15 @@
         let ret = [] // 列表 a-z
         for (let key in map) {
           let val = map[key]
-          if (val.title.match(/a-zA-Z/)) {
+          if (val.title.match(/[a-zA-Z]/)) {
             ret.push(val)
           } else if (val.title === HOT_NAME) {
             hot.push(val)
           }
         }
-        /* ret.sort((a, b) => {
+        ret.sort((a, b) => {
           return a.title.charCodeAt(0) - b.title.charCodeAt(0) // 字母按生序排列
-        }) */
+        })
         console.log(map)
         return hot.concat(ret)
       }
@@ -78,8 +77,13 @@
       ListView
     }
   }
+
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
-
+  .singer
+    position: fixed
+    top: 88px
+    bottom: 0
+    width: 100%
 </style>
