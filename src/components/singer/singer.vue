@@ -60,14 +60,14 @@
         let ret = [] // 列表 a-z
         for (let key in map) {
           let val = map[key]
-          if (val.title.match(/[a-zA-Z]/)) {
+          if (val.title.match(/[A-Za-z]/)) {
             ret.push(val)
           } else if (val.title === HOT_NAME) {
             hot.push(val)
           }
         }
         ret.sort((a, b) => {
-          return a.title.charCodeAt(0) - b.title.charCodeAt(0) // 字母按生序排列
+          return a.title.charCodeAt(0) - b.title.charCodeAt(0) // 字母按升序排列
         })
         console.log(map)
         return hot.concat(ret)

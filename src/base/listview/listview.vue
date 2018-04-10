@@ -4,18 +4,22 @@
       <li v-for="(group,index) in data" :key="index" class="list-group" ref="listGroup">
         <h2 class="list-group-title">{{group.title}}</h2>
         <uL>
-          <li @click="selectItem(item)" v-for="(item,index) in group.items" :key="index" class="list-group-item">
+          <li v-for="(item,index) in group.items" :key="index" class="list-group-item">
             <img class="avatar" v-lazy="item.avatar">
             <span class="name">{{item.name}}</span>
           </li>
         </uL>
       </li>
     </ul>
+    <div class="loading-container" v-show="!data.length">
+      <loading></loading>
+    </div>
   </scroll>
 </template>
 
 <script type="text/ecmascript-6">
   import Scroll from 'base/scroll/scroll'
+  import Loading from 'base/loading/loading'
 
   export default {
     props: {
@@ -23,14 +27,11 @@
         type: Array,
         default: () => []
       }
-    },
-    created() {
-      setTimeout(() => {
-        console.log(this.data)
-      })
+      // default不能直接写为：[]
     },
     components: {
-      Scroll
+      Scroll,
+      Loading
     }
   }
 </script>

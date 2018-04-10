@@ -1,46 +1,64 @@
 一.  package.json文件新增babel-runtime,fastclick,babel-polyfill
-1：babel-runtime 安装："babel-runtime": "^6.0.0" | 对es6语法做转义
-2：fastclick 安装："fastclick": "^1.0.6" | 解决移动端300m 延迟问题
-3：babel-polyfill 安装："babel-polyfill": "^6.2.0" | 对 es6 api 打补丁
+      1：babel-runtime 安装："babel-runtime": "^6.0.0" | 对es6语法做转义
+      2：fastclick 安装："fastclick": "^1.0.6" | 解决移动端300m 延迟问题
+      3：babel-polyfill 安装："babel-polyfill": "^6.2.0" | 对 es6 api 打补丁
+
 
 二、  需要安装各个loader依赖，否则会导致找不到依赖报错
-cnpm install stylus-loader css-loader style-loader --save-dev
+      cnpm install stylus-loader css-loader style-loader --save-dev
+
 
 三、  推荐中的 热门歌单请求QQ音乐接口时候遇到大坑，因为vuecli 已经更新版本， build中无dev-serverjs 文件
-解决方法：见build 中 webpack.dev.conf.js  nodejs代理跨域配置
+      解决方法：见build 中 webpack.dev.conf.js  nodejs代理跨域配置
 
 四、  solt插槽， vue-better-scroll 初始化
-见：scroll组件中 better-scroll 初始化参数
-data：{
-      type: Array, // 通过 props 传入父组件中要滚动的列表数据
-      default: null
-    }
-wacth: {  // 监听父组件中滚动列表实时更新数据的变化，防止出错
-  data() {
-    setTimeout(() => {
-      this.refresh() // 强制计算刷新作用
-    }, this.refreshDelay)
-  }
-}
-五、  VueLazyload 图片懒加载
-先package.json中写入，然后npm install 安装
-在main.js中引入
-import VueLazyload from 'vue-lazyload'
-需要 use 注册
-Vue.use(VueLazyload, {
-  loading: require('common/image/default.png')
-})
-最后在 组件中使用<img width="60" height="60" v-lazy="item.imgurl">
-五、  组件名称定义
-例如： singer.vue 引入 list-view 组件
-<template>
-  <div class="singer">
-    <list-view :data="singers" ref="list"></list-view>
-  </div>
-</template>
-<script type="text/ecmascript-6">
-  import ListView from 'base/listview/listview'
-  因为 ListView 是驼峰命名大写字母开头 ，所以组件中 要以 "-"  list-view 分割
-<script>
+      见：scroll组件中 better-scroll 初始化参数
+      data：{
+            type: Array, // 通过 props 传入父组件中要滚动的列表数据
+            default: null
+          }
+      wacth: {  // 监听父组件中滚动列表实时更新数据的变化，防止出错
+        data() {
+          setTimeout(() => {
+            this.refresh() // 强制计算刷新作用
+          }, this.refreshDelay)
+        }
+      }
 
+
+五、  VueLazyload 图片懒加载
+      先package.json中写入，然后npm install 安装
+      在main.js中引入
+      import VueLazyload from 'vue-lazyload'
+      需要 use 注册
+      Vue.use(VueLazyload, {
+        loading: require('common/image/default.png')
+      })
+      最后在 组件中使用<img width="60" height="60" v-lazy="item.imgurl">
+
+
+五、  组件名称定义
+      例如： singer.vue 引入 list-view 组件
+      <template>
+        <div class="singer">
+          <list-view :data="singers" ref="list"></list-view>
+        </div>
+      </template>
+      <script type="text/ecmascript-6">
+        import ListView from 'base/listview/listview'
+        因为 ListView 是驼峰命名大写字母开头 ，所以组件中 要以 "-"  list-view 分割
+        如果 Listview 是小写， 组件中就可以用 <listview></listview> 了
+      <script>
+
+
+六、  父子组件值传递，如果子组件中props 接收的是数组 type: Array   default: ?
+      此时 default 要写成箭头函数 ，不能直接写为 []
+      如： props: {
+               data: {
+                 type: Array,
+                 default: () => []
+               }
+             },
+
+七、  
 
