@@ -9,7 +9,7 @@ export function getSingerList() { // 歌手列表api数据接口
     uin: 0,
     notice: 0,
     needNewCode: 0,
-    pagesize: 200,
+    pagesize: 100,
     pagenum: 1,
     page: 'list',
     format: 'json',

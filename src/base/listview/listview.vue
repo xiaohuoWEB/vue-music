@@ -11,6 +11,12 @@
         </uL>
       </li>
     </ul>
+    <div class="list-shortcut">
+      <ul>
+        <li v-for="(item, index) in shortcutList" :key="index">{{item}}
+      </li>
+      </ul>
+    </div>
     <div class="loading-container" v-show="!data.length">
       <loading></loading>
     </div>
@@ -28,6 +34,14 @@
         default: () => []
       }
       // default不能直接写为：[]
+    },
+    computed: {
+      shortcutList() {
+        return this.data.map((group) => {
+          console.log(group)
+          return group.title.substr(0, 1)
+        })
+      }
     },
     components: {
       Scroll,

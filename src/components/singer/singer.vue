@@ -11,6 +11,7 @@
   import Singer from 'common/js/singer'
 
   const HOT_NAME = '热门'
+  const OTH_NAME = '#' // 其他无匹配字母的歌手
   const HOT_SINGER_LEN = 10
   export default {
     data() {
@@ -34,6 +35,10 @@
           hot: {
             title: HOT_NAME,
             items: []
+          },
+          oth: {
+            title: OTH_NAME,
+            items: []
           }
         }
         list.forEach((item, index) => { // 遍历api接口数据前10条数据当作 热门歌手
@@ -50,10 +55,17 @@
               items: []
             }
           }
-          map[key].items.push(new Singer({ // 负值给map key
-            id: item.Fsinger_mid,
-            name: item.Fsinger_name
-          }))
+          if (map[key].title.match(/^[0-9]*$/)) {
+            map.oth.items.push(new Singer({ // 向热门map.oth(其他) 里添加
+              name: item.Fsinger_name,
+              id: item.Fsinger_mid
+            }))
+          } else {
+            map[key].items.push(new Singer({ // 负值给map key
+              id: item.Fsinger_mid,
+              name: item.Fsinger_name
+            }))
+          }
         })
         // 为了得到有序列表，我们需要处理 map
         let hot = [] // 热门，空数组等待存值
@@ -61,7 +73,7 @@
         let oth = []
         for (let key in map) {
           let val = map[key]
-          if (val.title.match(/^[0-9]*$/)) {
+          if (val.title === OTH_NAME) {
             oth.push(val)
           } else if (val.title.match(/[A-Za-z]/)) {
             ret.push(val)
