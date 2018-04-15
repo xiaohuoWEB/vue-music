@@ -60,5 +60,5 @@
                }
              },
 
-七、  
-
+七、  <router-link tag="div" class="tab-item" to="/recommend">
+      tag="div" 表示把dom元素渲染成 div （可以换成其他dom元素）
