@@ -5,7 +5,7 @@
 </template>
 
 <script type="text/ecmascript-6">
-  import ListView from 'base/listview/listview'
+  import ListView from 'base/listview/listviewtest'
   import {ERR_OK} from 'api/config'
   import {getSingerList} from 'api/singer' // 调用数据接口
   import Singer from 'common/js/singer'
@@ -81,11 +81,10 @@
             hot.push(val)
           }
         }
-        ret.sort((a, b) => {
-          return a.title.charCodeAt(0) - b.title.charCodeAt(0) // 字母按升序排列
+        ret.sort((a, b) => { // 字母按升序排列
+          return a.title.charCodeAt(0) - b.title.charCodeAt(0)
         })
-        console.log(map)
-        return hot.concat(ret, oth)
+        return hot.concat(ret, oth) // 合并数组
       }
     },
     components: {

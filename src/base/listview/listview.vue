@@ -1,5 +1,9 @@
 <template>
-  <scroll :data="data" class="listview" ref="listview">
+  <scroll :data="data"
+          @scroll="scroll"
+          :listen-scroll="listenScroll"
+          :probe-type="probeType"
+          class="listview" ref="listview">
     <ul>
       <li v-for="(group,index) in data" :key="index" class="list-group" ref="listGroup">
         <h2 class="list-group-title">{{group.title}}</h2>
@@ -13,9 +17,12 @@
     </ul>
     <div class="list-shortcut" @touchstart.stop.prevent="onShortcutTouchStart" @touchmove.stop.prevent="onShortcutTouchMove">
       <ul>
-        <li v-for="(item, index) in shortcutList" :data-index="index" :key="index" class="item">{{item}}
+        <li v-for="(item, index) in shortcutList" :class="{'current': currentIndex === index}" :data-index="index" :key="index" class="item">{{item}}
       </li>
       </ul>
+    </div>
+    <div class="list-fixed" ref="fixed" v-show="fixedTitle">
+      <div class="fixed-title">{{fixedTitle}}</div>
     </div>
     <div class="loading-container" v-show="!data.length">
       <loading></loading>
@@ -31,6 +38,12 @@
   const ANCHOR_HEIGHT = 18 // 字体高度（字母） css 样式设置的高度 ，审查元素放到字母上面可以看到
 
   export default {
+    data() {
+      return {
+        scrollY: -1,
+        currentIndex: 0
+      }
+    },
     props: {
       data: {
         type: Array,
@@ -40,12 +53,22 @@
     },
     created() {
       this.touch = {} // 为什么不放在data里暂存，因为data() 初始化会产生 get和set观测数据变化，这里我们不需要观测数据变化。放在这里只是为了使2个函数能共享数据
+      this.listenScroll = true
+      this.listHeight = []
+      this.probeType = 3
     },
     computed: {
       shortcutList() { // 右侧字母列表
         return this.data.map((group) => { // 数组的map方法遍历title
           return group.title.substr(0, 1) // 因为列表中有“热门” 需要字符串截取title 第一个
         })
+      },
+      fixedTitle() {
+        if (this.scrollY > 0) { // 如果滚动时 index 大于0 返回空， 代码 v-show="fixedTitle" 小于0 才会显示,只有是负数的时候才会显示
+          return ''
+        } else {
+          return this.data[this.currentIndex] ? this.data[this.currentIndex].title : ''
+        }
       }
     },
     methods: {
@@ -64,7 +87,60 @@
         this._scrollTo(anchorIndex)
       },
       _scrollTo(index) {
-        this.$refs.listview.scrollToElement(this.$refs.listGroup[index], 0)
+        if (!index && index !== 0) {
+          return
+        }
+        if (index < 0) {
+          index = 0
+        } else if (index > this.listHeight.length - 2) {
+          index = this.listHeight.length - 2
+        }
+        this.scrollY = -this.listHeight[index]
+        if (index === 0) {
+
+        }
+        this.$refs.listview.scrollToElement(this.$refs.listGroup[index])
+      },
+      scroll(pos) {
+        this.scrollY = pos.y
+      },
+      _calculateHeight() {
+        this.listHeight = []
+        const list = this.$refs.listGroup
+        let height = 0
+        this.listHeight.push(height)
+        for (let i = 0; i < list.length; i++) {
+          let item = list[i]
+          height += item.clientHeight
+          this.listHeight.push(height)
+        }
+      }
+    },
+    watch: {
+      data() {
+        setTimeout(() => {
+          this._calculateHeight()
+        }, 20)
+      },
+      scrollY(newY) {
+        // 当滚动到顶部，newY>0 防止右侧高亮选中会消失
+        if (newY > 0) { // 页面向下拉 newY 值越大
+          this.currentIndex = 0
+          return
+        }
+
+        // 在中间部分滚动
+        const listHeight = this.listHeight
+        for (let i = 0; i < listHeight.length - 1; i++) {
+          let height1 = listHeight[i]
+          let height2 = listHeight[i + 1]
+          if (-newY >= height1 && -newY < height2) {
+            this.currentIndex = i
+            return
+          }
+        }
+        // 当滚动到底部，且-newY大于最后一个元素的上限
+        this.currentIndex = listHeight.length - 2
       }
     },
     components: {
