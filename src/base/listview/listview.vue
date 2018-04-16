@@ -32,7 +32,7 @@
 
 <script type="text/ecmascript-6">
   import Scroll from 'base/scroll/scroll'
-  import {getData} from 'common/js/dom'
+  import {getData} from 'common/js/dom' // 公共方法获取dom元素上面的 data-index 属性
   import Loading from 'base/loading/loading'
 
   const ANCHOR_HEIGHT = 18 // 字体高度（字母） css 样式设置的高度 ，审查元素放到字母上面可以看到
