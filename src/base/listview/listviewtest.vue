@@ -1,5 +1,9 @@
 <template>
-  <scroll class="listview" ref="listview" :data="data">
+  <scroll class="listview"
+          ref="listview"
+          :data="data"
+          @scroll="scroll"
+          :listen-scroll="listenScroll">
     <ul>
       <li v-for="(group, index) in data" :key="index" class="list-group" ref="listGroup">
         <h2 class="list-group-title">{{group.title}}</h2>
@@ -30,6 +34,10 @@
   const ANCHOR_HEIGHT = 18
 
   export default {
+    data() {
+      return {
+      }
+    },
     props: {
       data: {
         type: Array,
@@ -45,6 +53,9 @@
     },
     created() {
       this.touch = {}
+      this.listHeight = []
+      this.probeType = 3
+      this.listenScroll = true
     },
     methods: {
       onShortcutTouchStart(e) { // 点击右侧任意字母， 左侧列表滚动到相应位置
@@ -63,6 +74,30 @@
       },
       _scrollTo(index) {
         this.$refs.listview.scrollToElement(this.$refs.listGroup[index], 1300)
+      },
+      scroll(pos) {
+        console.log(pos)
+      },
+      _calculateHeight() {
+        this.listHeight = []
+        let height = 0
+        this.listHeight.push(height)
+        const list = this.$refs.listGroup
+        for (let i = 0; i < list.length; i++) {
+          let item = list[i]
+          height += item.clientHeight
+          this.listHeight.push(height)
+        }
+      }
+    },
+    watch: {
+      data() {
+        setTimeout(() => {
+          this._calculateHeight()
+        }, 20)
+      },
+      scrollY(newY) {
+        console.log(newY)
       }
     },
     components: {

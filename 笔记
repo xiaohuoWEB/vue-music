@@ -62,3 +62,18 @@
 
 七、  <router-link tag="div" class="tab-item" to="/recommend">
       tag="div" 表示把dom元素渲染成 div （可以换成其他dom元素）
+
+八、  利用webpack对代码进行分割是懒加载的前提，懒加载就是异步调用组件，需要时候才下载。（属于优化）
+      方法1： 引入方式
+      const Recommend = (resolve) => {
+        import('components/recommend/recommend').then((module) => {
+          resolve(module)
+        })
+      }
+      routes：[]这里正常写
+
+      方法2： 引入方式
+      const first = r => require.ensure([], () => r(require('components/recommend／recommend')), 'recommend')
+      routes：[]这里正常写
+
+      方法3： 正常引入 improt xxx from xxx

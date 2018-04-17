@@ -1,14 +1,16 @@
 <template>
   <div class="singer">
-    <list-view :data="singers" ref="list"></list-view>
+    <list-view @select="selectSinger" :data="singers" ref="list"></list-view>
+    <router-view></router-view>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
-  import ListView from 'base/listview/listviewtest'
+  import ListView from 'base/listview/listview'
   import {ERR_OK} from 'api/config'
   import {getSingerList} from 'api/singer' // 调用数据接口
   import Singer from 'common/js/singer'
+  import {mapMutations} from 'vuex'
 
   const HOT_NAME = '热门'
   const OTH_NAME = '#' // 其他无匹配字母的歌手
@@ -23,6 +25,12 @@
       this._getSingerList()
     },
     methods: {
+      selectSinger(singer) {
+        this.$router.push({
+          path: `/singer/${singer.id}`
+        })
+        this.setSinger(singer)
+      },
       _getSingerList() {
         getSingerList().then((res) => {
           if (res.code === ERR_OK) {
@@ -85,7 +93,10 @@
           return a.title.charCodeAt(0) - b.title.charCodeAt(0)
         })
         return hot.concat(ret, oth) // 合并数组
-      }
+      },
+      ...mapMutations({
+        setSinger: 'SET_SINGER'
+      })
     },
     components: {
       ListView

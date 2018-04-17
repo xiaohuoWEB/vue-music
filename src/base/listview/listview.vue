@@ -8,7 +8,7 @@
       <li v-for="(group,index) in data" :key="index" class="list-group" ref="listGroup">
         <h2 class="list-group-title">{{group.title}}</h2>
         <uL>
-          <li v-for="(item,index) in group.items" :key="index" class="list-group-item">
+          <li @click="selectItem(item)" v-for="(item,index) in group.items" :key="index" class="list-group-item">
             <img class="avatar" v-lazy="item.avatar">
             <span class="name">{{item.name}}</span>
           </li>
@@ -35,6 +35,7 @@
   import {getData} from 'common/js/dom' // 公共方法获取dom元素上面的 data-index 属性
   import Loading from 'base/loading/loading'
 
+  const TITLE_HEIGHT = 30 // fixedtop 字母定位的高度 审查元素可以看到
   const ANCHOR_HEIGHT = 18 // 字体高度（字母） css 样式设置的高度 ，审查元素放到字母上面可以看到
 
   export default {
@@ -72,6 +73,9 @@
       }
     },
     methods: {
+      selectItem(item) {
+        this.$emit('select', item)
+      },
       onShortcutTouchStart(e) { // 点击右侧任意字母， 左侧列表滚动到相应位置
         let anchorIndex = getData(e.target, 'index')
         let firstTouch = e.touches[0]
@@ -96,9 +100,6 @@
           index = this.listHeight.length - 2
         }
         this.scrollY = -this.listHeight[index]
-        if (index === 0) {
-
-        }
         this.$refs.listview.scrollToElement(this.$refs.listGroup[index])
       },
       scroll(pos) {
@@ -136,11 +137,20 @@
           let height2 = listHeight[i + 1]
           if (-newY >= height1 && -newY < height2) {
             this.currentIndex = i
+            this.diff = height2 + newY
             return
           }
         }
         // 当滚动到底部，且-newY大于最后一个元素的上限
         this.currentIndex = listHeight.length - 2
+      },
+      diff(newVal) {
+        let fixedTop = (newVal > 0 && newVal < TITLE_HEIGHT) ? newVal - TITLE_HEIGHT : 0
+        if (this.fixedTop === fixedTop) {
+          return
+        }
+        this.fixedTop = fixedTop
+        this.$refs.fixed.style.transform = `translate3d(0,${fixedTop}px,0)`
       }
     },
     components: {
