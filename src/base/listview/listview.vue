@@ -42,7 +42,9 @@
     data() {
       return {
         scrollY: -1,
-        currentIndex: 0
+        currentIndex: 0,
+        diff: -1
+        // diff 和 scrollY 属性值之所以设置为 -1 因为是 0 的时候对【热门】第一个位置修改位置滑动
       }
     },
     props: {
