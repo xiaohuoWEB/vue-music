@@ -3,15 +3,21 @@
       2：fastclick 安装："fastclick": "^1.0.6" | 解决移动端300m 延迟问题
       3：babel-polyfill 安装："babel-polyfill": "^6.2.0" | 对 es6 api 打补丁
 
+二、  更改build目录下的文件一定要重启服务： 比如：webpack.base.conf 里的，更改配置重启服务
+      alias: {
+            '@': resolve('src'),
+            'components': resolve('src/components'),
+          }
 
-二、  需要安装各个loader依赖，否则会导致找不到依赖报错
+
+三、  需要安装各个loader依赖，否则会导致找不到依赖报错
+      cnpm install stylus-loader css-loader style-loader --save-dev
       cnpm install stylus-loader css-loader style-loader --save-dev
 
-
-三、  推荐中的 热门歌单请求QQ音乐接口时候遇到大坑，因为vuecli 已经更新版本， build中无dev-serverjs 文件
+四、  推荐中的 热门歌单请求QQ音乐接口时候遇到大坑，因为vuecli 已经更新版本， build中无dev-serverjs 文件
       解决方法：见build 中 webpack.dev.conf.js  nodejs代理跨域配置
 
-四、  solt插槽， vue-better-scroll 初始化
+五、  solt插槽， vue-better-scroll 初始化
       见：scroll组件中 better-scroll 初始化参数
       data：{
             type: Array, // 通过 props 传入父组件中要滚动的列表数据
@@ -26,7 +32,7 @@
       }
 
 
-五、  VueLazyload 图片懒加载
+六、  VueLazyload 图片懒加载
       先package.json中写入，然后npm install 安装
       在main.js中引入
       import VueLazyload from 'vue-lazyload'
@@ -37,7 +43,7 @@
       最后在 组件中使用<img width="60" height="60" v-lazy="item.imgurl">
 
 
-五、  组件名称定义
+七、  组件名称定义
       例如： singer.vue 引入 list-view 组件
       <template>
         <div class="singer">
@@ -51,7 +57,7 @@
       <script>
 
 
-六、  父子组件值传递，如果子组件中props 接收的是数组 type: Array   default: ?
+八、  父子组件值传递，如果子组件中props 接收的是数组 type: Array   default: ?
       此时 default 要写成箭头函数 ，不能直接写为 []
       如： props: {
                data: {
@@ -60,10 +66,10 @@
                }
              },
 
-七、  <router-link tag="div" class="tab-item" to="/recommend">
+九、  <router-link tag="div" class="tab-item" to="/recommend">
       tag="div" 表示把dom元素渲染成 div （可以换成其他dom元素）
 
-八、  利用webpack对代码进行分割是懒加载的前提，懒加载就是异步调用组件，需要时候才下载。（属于优化）
+十、  利用webpack对代码进行分割是懒加载的前提，懒加载就是异步调用组件，需要时候才下载。（属于优化）
       方法1： 引入方式
       const Recommend = (resolve) => {
         import('components/recommend/recommend').then((module) => {

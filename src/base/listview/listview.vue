@@ -102,7 +102,7 @@
           index = this.listHeight.length - 2
         }
         this.scrollY = -this.listHeight[index]
-        this.$refs.listview.scrollToElement(this.$refs.listGroup[index])
+        this.$refs.listview.scrollToElement(this.$refs.listGroup[index], 1300)
       },
       scroll(pos) {
         this.scrollY = pos.y
