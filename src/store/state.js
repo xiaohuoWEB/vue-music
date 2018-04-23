@@ -1,4 +1,4 @@
-// 状态树
+// 状态管理（状态树）
 const state = {
   singer: {}
 }

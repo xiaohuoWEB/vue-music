@@ -1,2 +1,2 @@
-// 存储字符串常量
+// 存储关于mutation.js字符串常量
 export const SET_SINGER = 'SET_SINGER'
