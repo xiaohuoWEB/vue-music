@@ -1,5 +1,5 @@
 <template>
-  <transition name="slid">
+  <transition name="slide">
     <div class="singer-detail"></div>
   </transition>
 </template>
@@ -7,7 +7,7 @@
 <script type="text/ecmascript-6">
   import {mapGetters} from 'vuex'
   import {ERR_OK} from 'api/config'
-  import {getSingerDetail} from 'api/singer' // 获取歌手详情列表数据
+  import {getSingerDetail, getMusicqq} from 'api/singer' // 获取歌手详情列表数据
   import {createSong} from 'common/js/song'
   export default {
     data() {
@@ -21,7 +21,7 @@
       ])
     },
     created() {
-      console.log(this.singer)
+      // console.log(this.singer)
       this._getDetail() // 获取歌手详情列表数据
     },
     methods: {
@@ -44,7 +44,15 @@
           // 一个object里面包含一个musicData的object，这个项目我们只需要musicData，所以可以这样定义：{musicData}
           let {musicData} = item
           if (musicData.songid && musicData.albummid) {
-           ret.push(createSong(musicData))
+            // ret.push(createSong(musicData))
+            getMusicqq(musicData.songmid).then((res) => {
+              if (res.code === ERR_OK) {
+                let musicvkey = []
+                musicvkey.push(res.data.items[0].vkey)
+                ret.push(createSong(musicData, musicvkey))
+                return musicvkey
+              }
+            })
           }
         })
         return ret
@@ -63,9 +71,9 @@
     right: 0
     bottom: 0
     background: $color-background
-  .slid-enter-active,.slid-leave-active
+  .slide-enter-active,.slide-leave-active
     transition: all 0.3s
-  .slid-enter,.slid-leave-to
+  .slide-enter,.slide-leave-to
     transform: translate3d(100%, 0, 0)
 
 </style>
