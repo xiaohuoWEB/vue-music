@@ -26,7 +26,7 @@ export function getMusicqq(songId) {
   // const a = 'MusicJsonCallback' + (Math.random() + '').replace('0.', '')
   const data = Object.assign({}, commonParams, {
     format: 'json',
-    songmid: songId,
+    songmid: songId.songmid,
     notice: 0,
     platform: 'yqq',
     needNewCode: 0,
@@ -35,7 +35,7 @@ export function getMusicqq(songId) {
     hostUin: 0,
     cid: 205361747,
     guid: 2512456516,
-    filename: `${'C400' + songId + '.m4a'}`
+    filename: `${'C400' + songId.songmid + '.m4a'}`
     // callback: a
 
   })
