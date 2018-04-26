@@ -20,13 +20,13 @@ export function getSingerList() { // 歌手列表api数据接口
   return jsonp(url, data, options)
 }
 
-export function getMusicqq(songId) {
-  // console.log(songId)
+export function getMusicVkey(songId) {
+  console.log(songId)
   const url = 'https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg'
   // const a = 'MusicJsonCallback' + (Math.random() + '').replace('0.', '')
   const data = Object.assign({}, commonParams, {
     format: 'json',
-    songmid: songId.songmid,
+    songmid: songId.mid,
     notice: 0,
     platform: 'yqq',
     needNewCode: 0,
@@ -35,7 +35,7 @@ export function getMusicqq(songId) {
     hostUin: 0,
     cid: 205361747,
     guid: 2512456516,
-    filename: `${'C400' + songId.songmid + '.m4a'}`
+    filename: `${'C400' + songId.mid + '.m4a'}`
     // callback: a
 
   })

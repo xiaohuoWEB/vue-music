@@ -107,3 +107,15 @@
           return '(' + this.x + ', ' + this.y + ')';
         }
       }
+十二、 vue  dom手动挂载方法，main.js中， 在最后可以 使用$.mount("app") 进行挂载， es6写法就用 render：h => h(App)
+      new Vue({
+      //el: '#app',
+      router,
+      render: h => h(App)
+      // render: x => x(App)
+      // 这里的render: x => x(App)是es6的写法
+      // 转换过来就是：  暂且可理解为是渲染App组件
+      // render:(function(x){
+      //  return x(App);
+      // });
+      }).$mount("#app");

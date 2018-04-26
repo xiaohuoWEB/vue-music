@@ -1,6 +1,6 @@
 export default class Song {
   // 一个类必须有constructor()方法，如果没有显式定义，一个空的constructor()方法会被默认添加。
-  constructor({id, mid, singer, name, album, duration, image, url}) {
+  constructor({id, mid, singer, name, album, duration, image}) {
     this.id = id
     this.mid = mid
     this.singer = singer
@@ -8,19 +8,9 @@ export default class Song {
     this.album = album
     this.duration = duration
     this.image = image
-    this.url = url
   }
 }
-
-export function creatsongMusic(musicdata) {
-  // console.log(musicdata)
-  return new Song({
-    // url:
-  })
-}
-
 export function createSong(musicData) {
-  console.log(musicData)
   return new Song({
     id: musicData.songid,
     mid: musicData.songmid,
