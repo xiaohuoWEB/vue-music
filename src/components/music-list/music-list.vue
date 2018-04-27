@@ -5,11 +5,26 @@
     </div>
     <h1 class="title" v-html="title"></h1>
     <div class="bg-image" :style="bgStyle" ref="bgImage">
+      <div class="play-wrapper">
+        <div class="play" v-show="songs.length>0" ref="playBtn">
+          <i class="icon-play"></i>
+          <span class="text">随机播放全部</span>
+        </div>
+      </div>
       <div class="filter" ref="filter"></div>
     </div>
-    <scroll :data="songs" class="list" ref="list">
+    <div class="bg-layer" ref="layer"></div>
+    <scroll @scroll="scroll"
+            :data="songs"
+            class="list"
+            :listen-scroll="listenScroll"
+            :probe-type="probeType"
+            ref="list">
       <div class="song-list-wrapper">
         <song-list :songs="songs"></song-list>
+      </div>
+      <div class="loading-container" v-show="!songs.length">
+        <loading></loading>
       </div>
     </scroll>
   </div>
@@ -18,6 +33,8 @@
 <script type="text/ecmascript-6">
   import Scroll from 'base/scroll/scroll'
   import SongList from 'base/song-list/song-list'
+  import Loading from 'base/loading/loading'
+  const RESERVED_HEIGHT = 40
   export default {
     props: {
       bgImage: {
@@ -33,23 +50,72 @@
         default: ''
       }
     },
+    data() {
+      return {
+        scrollY: 0
+      }
+    },
     computed: {
       bgStyle() {
         return `background-image: url(${this.bgImage})`
       }
     },
     mounted() {
-      this.$refs.list.$el.style.top = `${this.$refs.bgImage.clientHeight}px`
-      this.$refs.bgImage.style.zIndex = 10
+      this.imageHeight = this.$refs.bgImage.clientHeight // 获取上半部分大的背景图可视区域高度
+      // console.log(this.imageHeight)
+      this.minTranslateY = -this.imageHeight + RESERVED_HEIGHT // 因为滚动的数值是负数，所以是是 -this.imageHeight
+      this.$refs.list.$el.style.top = `${this.imageHeight}px` // css3 滚动，列表的top 滚动到顶部指定位置
+    },
+    created() {
+      this.probeType = 3
+      this.listenScroll = true
     },
     methods: {
       back() {
         this.$router.back()
+      },
+      scroll(pos) {
+        this.scrollY = pos.y // 滚动的数值 赋值给 scrollY
+      }
+    },
+    watch: {
+      // 关于滚动代码transform 加入浏览器前缀 webkit 的 可以使用 dom.js中prefixStyle 封装好的方法，个人觉得页面中这种更清晰的展现，所以没用dom封装的方法
+      scrollY(newY) { // 滚动数值
+        let zIndex = 0
+        let scale = 1
+        let blur = 0
+        let tranlateY = Math.max(this.minTranslateY, newY) // 取滚动列表数值最大值
+        this.$refs.layer.style['transform'] = `translate3d(0,${tranlateY}px,0)` // 歌曲列表无线滚动
+        this.$refs.layer.style['webkittransform'] = `translate3d(0,${tranlateY}px,0)` // webkit
+
+        const percent = Math.abs(newY / this.imageHeight)
+        if (newY > 0) {
+          scale = 1 + percent
+          zIndex = 10
+        } else {
+          blur = Math.min(20 * percent, 20)
+        }
+        this.$refs.filter.style['backdrop-filter'] = `blur(${blur}px)`
+        this.$refs.filter.style['webkitBackdrop-filter'] = `blur(${blur}px)`
+        if (newY < this.minTranslateY) { // 当滚动数值 小于 上面歌手大图可是区域高度滚动数值时候
+          zIndex = 10
+          this.$refs.bgImage.style.paddingTop = 0
+          this.$refs.bgImage.style.height = `${RESERVED_HEIGHT}px`
+          this.$refs.playBtn.style.display = 'none'
+        } else {
+          this.$refs.bgImage.style.paddingTop = '70%'
+          this.$refs.bgImage.style.height = 0
+          this.$refs.playBtn.style.display = ''
+        }
+        this.$refs.bgImage.style.zIndex = zIndex // 防止歌曲文字滚动到外部时候仍然显示
+        this.$refs.bgImage.style['transform'] = `scale(${scale})`
+        this.$refs.bgImage.style['webkittransform'] = `scale(${scale})`
       }
     },
     components: {
       Scroll,
-      SongList
+      SongList,
+      Loading
     }
   }
 </script>
