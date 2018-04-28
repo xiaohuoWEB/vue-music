@@ -21,7 +21,7 @@
             :probe-type="probeType"
             ref="list">
       <div class="song-list-wrapper">
-        <song-list :songs="songs"></song-list>
+        <song-list @select="selectItem" :songs="songs"></song-list>
       </div>
       <div class="loading-container" v-show="!songs.length">
         <loading></loading>
@@ -34,6 +34,7 @@
   import Scroll from 'base/scroll/scroll'
   import SongList from 'base/song-list/song-list'
   import Loading from 'base/loading/loading'
+  import {mapActions} from 'vuex'
   const RESERVED_HEIGHT = 40
   export default {
     props: {
@@ -76,7 +77,16 @@
       },
       scroll(pos) {
         this.scrollY = pos.y // 滚动的数值 赋值给 scrollY
-      }
+      },
+      selectItem(item, index) {
+        this.selectPlay({
+          list: this.songs,
+          index
+        })
+      },
+      ...mapActions([
+        'selectPlay'
+      ])
     },
     watch: {
       // 关于滚动代码transform 加入浏览器前缀 webkit 的 可以使用 dom.js中prefixStyle 封装好的方法，个人觉得页面中这种更清晰的展现，所以没用dom封装的方法
