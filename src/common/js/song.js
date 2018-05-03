@@ -1,6 +1,6 @@
 export default class Song {
   // 一个类必须有constructor()方法，如果没有显式定义，一个空的constructor()方法会被默认添加。
-  constructor({id, mid, singer, name, album, duration, image}) {
+  constructor({id, mid, singer, name, album, duration, image, url}) {
     this.id = id
     this.mid = mid
     this.singer = singer
@@ -8,6 +8,7 @@ export default class Song {
     this.album = album
     this.duration = duration
     this.image = image
+    this.url = url
   }
 }
 export function createSong(musicData) {
@@ -20,6 +21,7 @@ export function createSong(musicData) {
     duration: musicData.interval,
     image: `https://y.gtimg.cn/music/photo_new/T002R300x300M000${musicData.albummid}.jpg?max_age=2592000`
     // url: `http://dl.stream.qqmusic.qq.com/C400${musicData.songmid}.m4a?vkey=${vkey}&guid=2512456516&uin=0&fromtag=66`
+    // url: 'http://dl.stream.qqmusic.qq.com/C400003v4UL61IYlTY.m4a?guid=7747251920&vkey=1F7FD3E3D8FBA54653727F155D06EF0D10DC7B721BA7F74300F3503178A597A827C644E8BEC4DD3B8E285002945D126340326A850658EFA7&uin=0&fromtag=38'
   })
 }
 
