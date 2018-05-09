@@ -85,7 +85,7 @@
         </div>
       </div>
     </transition>
-    <audio ref="audio" src="http://dl.stream.qqmusic.qq.com/C400003v4UL61IYlTY.m4a?guid=7747251920&vkey=1F7FD3E3D8FBA54653727F155D06EF0D10DC7B721BA7F74300F3503178A597A827C644E8BEC4DD3B8E285002945D126340326A850658EFA7&uin=0&fromtag=38"></audio>
+    <audio ref="audio" :src="currentSong.url"></audio>
   </div>
 </template>
 
