@@ -20,7 +20,7 @@
         <div class="middle">
           <div class="middle-l" ref="middleL">
             <div class="cd-wrapper" ref="cdWrapper">
-              <div class="cd" ref="imageWrapper">
+              <div class="cd" :class="cdCls"  ref="imageWrapper">
                 <img ref="image" class="image" :src="currentSong.image">
               </div>
             </div>
@@ -52,13 +52,13 @@
               <i class="icon-sequence"></i>
             </div>
             <div class="icon i-left">
-              <i class="icon-prev"></i>
+              <i @click="prev" class="icon-prev"></i>
             </div>
             <div class="icon i-center">
-              <i class="icon-play"></i>
+              <i @click="togglePlaying" :class="playIcon"></i>
             </div>
             <div class="icon i-right">
-              <i class="icon-next"></i>
+              <i @click="next" class="icon-next"></i>
             </div>
             <div class="icon i-right">
               <i class="icon icon-not-favorite"></i>
@@ -71,7 +71,7 @@
       <div class="mini-player" v-show="!fullScreen" @click="open">
         <div class="icon">
           <div class="imgWrapper" ref="miniWrapper">
-            <img ref="miniImage" width="40" height="40" :src="currentSong.image">
+            <img ref="miniImage" :class="cdCls" width="40" height="40" :src="currentSong.image">
           </div>
         </div>
         <div class="text">
@@ -79,6 +79,7 @@
           <p class="desc" v-html="currentSong.singer"></p>
         </div>
         <div class="control">
+          <i @click.stop="togglePlaying" :class="miniIcon"></i>
         </div>
         <div class="control">
           <i class="icon-playlist"></i>
@@ -98,10 +99,21 @@
 
   export default {
     computed: {
+      cdCls() { // 大图cd 旋转
+        return this.playing ? 'play' : 'play pause'
+      },
+      playIcon() { // 播放器暂停/播放 图标状态切换
+        return this.playing ? 'icon-pause' : 'icon-play'
+      },
+      miniIcon() { // 底部迷你播放器 暂停/播放 图标状态切换
+        return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
+      },
       ...mapGetters([
         'fullScreen',
         'playlist',
-        'currentSong'
+        'currentSong',
+        'playing',
+        'currentIndex'
       ])
     },
     methods: {
@@ -151,6 +163,23 @@
         this.$refs.cdWrapper.style['transform'] = ''
         this.$refs.cdWrapper.style['webkittransform'] = ''
       },
+      togglePlaying() { // 歌曲播放/暂停
+        this.setPlayingState(!this.playing)
+      },
+      prev() { // 上一曲
+        let index = this.currentIndex - 1
+        if (index === -1) {
+          index = this.playlist.length - 1
+        }
+        this.setCurrentIndex(index)
+      },
+      next() { // 下一曲
+        let index = this.currentIndex + 1
+        if (index === this.playlist.length) {
+          index = 0
+        }
+        this.setCurrentIndex(index)
+      },
       _getPosAndScale() {
         const targetWidth = 40
         const paddingLeft = 40
@@ -167,7 +196,9 @@
         }
       },
       ...mapMutations({
-        setFullScreen: 'SET_FULL_SCREEN'
+        setFullScreen: 'SET_FULL_SCREEN',
+        setPlayingState: 'SET_PLAYING_STATE',
+        setCurrentIndex: 'SET_CURRENT_INDEX'
       })
     },
     watch: {
@@ -175,6 +206,12 @@
         this.$nextTick(() => {
           this.$refs.audio.play()
         }, 20)
+      },
+      playing(newPlaying) {
+        const audio = this.$refs.audio
+        this.$nextTick(() => {
+          newPlaying ? audio.play() : audio.pause()
+        })
       }
     }
   }
@@ -192,7 +229,6 @@
       bottom: 0
       z-index: 150
       background: $color-background
-      transition: .8s all
       .background
         position: absolute
         left: 0
@@ -248,23 +284,25 @@
             left: 10%
             top: 0
             width: 80%
-            box-sizing: border-box
             height: 100%
             .cd
               width: 100%
               height: 100%
+              box-sizing: border-box
+              border: 10px solid rgba(255, 255, 255, 0.1)
               border-radius: 50%
+              &.play
+                animation: rotate 20s linear infinite
+              &.pause
+                animation-play-state: paused
               .image
                 position: absolute
                 left: 0
                 top: 0
                 width: 100%
                 height: 100%
-                box-sizing: border-box
                 border-radius: 50%
-                border: 10px solid rgba(255, 255, 255, 0.1)
-              .play
-                animation: rotate 20s linear infinite
+
           .playing-lyric-wrapper
             width: 80%
             margin: 30px auto 0 auto
@@ -292,11 +330,6 @@
               font-size: $font-size-medium
               &.current
                 color: $color-text
-            .pure-music
-              padding-top: 50%
-              line-height: 32px
-              color: $color-text-l
-              font-size: $font-size-medium
       .bottom
         position: absolute
         bottom: 50px
@@ -382,17 +415,13 @@
       .icon
         flex: 0 0 40px
         width: 40px
-        height: 40px
         padding: 0 10px 0 20px
-        .imgWrapper
-          height: 100%
-          width: 100%
-          img
-            border-radius: 50%
-            &.play
-              animation: rotate 10s linear infinite
-            &.pause
-              animation-play-state: paused
+        img
+          border-radius: 50%
+          &.play
+            animation: rotate 10s linear infinite
+          &.pause
+            animation-play-state: paused
       .text
         display: flex
         flex-direction: column

@@ -41,7 +41,7 @@
         getSingerDetail(this.singer.id).then((res) => { // 正常点击获取歌手详情数据
           if (res.code === ERR_OK) {
             this.songs = this._normalizeSongs(res.data.list)
-            console.log(this.songs)
+            // console.log(this.songs)
           }
         })
       },
