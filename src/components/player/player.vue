@@ -53,8 +53,8 @@
             <span class="time time-r">{{format(currentSong.duration)}}</span>
           </div>
           <div class="operators">
-            <div class="icon i-left">
-              <i class="icon-sequence"></i>
+            <div class="icon i-left" @click="changeMode">
+              <i :class="iconMode"></i>
             </div>
             <div class="icon i-left" :class="disableCls">
               <i @click="prev" class="icon-prev"></i>
@@ -84,7 +84,7 @@
           <p class="desc" v-html="currentSong.singer"></p>
         </div>
         <div class="control">
-          <progress-circle>
+          <progress-circle :radius="radius" :percent="percent">
             <i @click.stop="togglePlaying" :class="miniIcon" class="icon-mini"></i>
           </progress-circle>
         </div>
@@ -97,6 +97,7 @@
            @canplay="ready"
            @error="error"
            @timeupdate="updateTime"
+           @ended="end"
     ></audio>
   </div>
 </template>
@@ -106,6 +107,8 @@
   import animations from 'create-keyframe-animation'
   import ProgressBar from 'base/progress-bar/progress-bar'
   import ProgressCircle from 'base/progress-circle/progress-circle'
+  import {playMode} from 'common/js/config'
+  import {shuffle} from 'common/js/util'
   // import {prefixStyle} from 'common/js/dom'
 
   // const transform = prefixStyle('transform')
@@ -114,7 +117,8 @@
     data() {
       return {
         songReady: false, // 解决上一曲下一曲连续点击控制台报错
-        currentTime: 0 // 播放时间
+        currentTime: 0, // 播放时间
+        radius: 32 // 如果直接写在代买传递是字符串32，所以通过这里转换一下
       }
     },
     computed: {
@@ -124,13 +128,16 @@
       playIcon() { // 播放器暂停/播放 图标状态切换
         return this.playing ? 'icon-pause' : 'icon-play'
       },
+      iconMode() { // 随机图标切换
+        return this.mode === playMode.sequence ? 'icon-sequence' : this.mode === playMode.loop ? 'icon-loop' : 'icon-random'
+      },
       miniIcon() { // 底部迷你播放器 暂停/播放 图标状态切换
         return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
       },
-      disableCls() {
+      disableCls() { // 如果快速点击切换，切换按钮会变灰，防止快速点击出错
         return this.songReady ? '' : 'disable'
       },
-      percent() {
+      percent() { //  计算歌曲时间
         return this.currentTime / this.currentSong.duration
       },
       ...mapGetters([
@@ -138,14 +145,16 @@
         'playlist',
         'currentSong',
         'playing',
-        'currentIndex'
+        'currentIndex',
+        'mode',
+        'sequenceList'
       ])
     },
     methods: {
-      back() {
+      back() { // 左上角后退按钮
         this.setFullScreen(false)
       },
-      open() {
+      open() { // 点击模拟播放器打开大播放器
         this.setFullScreen(true)
       },
       enter(el, done) {
@@ -191,6 +200,17 @@
       togglePlaying() { // 歌曲播放/暂停
         this.setPlayingState(!this.playing)
       },
+      end() { // 歌曲播放完毕自动切换到下一首， 如果当前模式是单曲循环，就走if 逻辑
+        if (this.mode === playMode.loop) {
+          this.loop()
+        } else {
+          this.next()
+        }
+      },
+      loop() { // 单曲循环模式
+        this.$refs.audio.currentTime = 0
+        this.$refs.audio.play()
+      },
       prev() { // 上一曲
         if (!this.songReady) {
           return
@@ -234,11 +254,29 @@
         const second = this._pad(interval % 60)
         return `${minute}:${second}`
       },
-      onProgressBarChange(percent) {
+      onProgressBarChange(percent) { // 点击进度条位置，歌曲对应改变
         this.$refs.audio.currentTime = this.currentSong.duration * percent
         if (!this.playing) {
           this.togglePlaying()
         }
+      },
+      changeMode() { // 根据图标切换，歌曲执行对应图标播放操作
+        const mode = (this.mode + 1) % 3
+        this.setPlayMode(mode)
+        let list = null
+        if (mode === playMode.random) {
+          list = shuffle(this.sequenceList)
+        } else {
+          list = this.sequenceList
+        }
+        this.resetCurrentIndex(list)
+        this.setPlaylist(list)
+      },
+      resetCurrentIndex(list) { // 重置歌曲列表歌曲index
+        let index = list.findIndex((item) => {
+          return item.id === this.currentSong.id
+        })
+        this.setCurrentIndex(index)
       },
       _pad(num, n = 2) {
         let len = num.toString().length
@@ -266,11 +304,16 @@
       ...mapMutations({
         setFullScreen: 'SET_FULL_SCREEN',
         setPlayingState: 'SET_PLAYING_STATE',
-        setCurrentIndex: 'SET_CURRENT_INDEX'
+        setCurrentIndex: 'SET_CURRENT_INDEX',
+        setPlayMode: 'SET_PLAY_MODE',
+        setPlaylist: 'SET_PLAYLIST'
       })
     },
     watch: {
-      currentSong() {
+      currentSong(newSong, oldSong) {
+        if (newSong.id === oldSong.id) { // 如果切换随机图标歌曲ID 不变 就像下面执行歌曲播放
+          return
+        }
         this.$nextTick(() => {
           this.$refs.audio.play()
         }, 20)
