@@ -8,6 +8,6 @@ const state = {
   playlist: [],
   sequenceList: [],
   mode: playMode.sequence, // 默认播放模式 顺序播放
-  currentIndex: -1
+  currentIndex: -1 // 歌曲index顺序
 }
 export default state
