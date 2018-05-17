@@ -13,7 +13,7 @@ export default class Song {
     this.url = url
   }
 }
-export async function createSong(musicData) { // 封装
+export async function createSong(musicData) { // 封装 歌曲所需要的数据
   return new Song({
     id: musicData.songid,
     mid: musicData.songmid,
@@ -29,7 +29,7 @@ export async function createSong(musicData) { // 封装
   })
 }
 
-function getSongURL(songmid) {
+function getSongURL(songmid) { // 获取歌曲 url
   return new Promise((resolve, reject) => {
     resolve(getMusicVkey(songmid).then((res) => {
       return `http://dl.stream.qqmusic.qq.com/C400${songmid}.m4a?guid=2512456516&vkey=${res.data.items[0].vkey}&uin=0&fromtag=66`
