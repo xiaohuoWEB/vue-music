@@ -17,7 +17,11 @@
           <h1 class="title" v-html="currentSong.name"></h1>
           <h2 class="subtitle" v-html="currentSong.singer"></h2>
         </div>
-        <div class="middle">
+        <div class="middle"
+             @touchstart.prevent="middleTouchStart"
+             @touchmove="middleTouchMove"
+             @touchend="middleTouchEnd"
+        >
           <div class="middle-l" ref="middleL">
             <div class="cd-wrapper" ref="cdWrapper">
               <div class="cd" :class="cdCls"  ref="imageWrapper">
@@ -28,19 +32,24 @@
               <div class="playing-lyric"></div>
             </div>
           </div>
-          <div class="lyric-wrapper">
-            <div>
-              <p ref="lyricLine" class="text"></p>
+          <scroll class="middle-r" ref="lyricList" :data="currentLyric && currentLyric.lines">
+            <div class="lyric-wrapper">
+              <div v-if="currentLyric">
+                <p v-for="(line,index) in currentLyric.lines"
+                   :key="index"
+                   :class="{'current': currentLineNum === index}"
+                   ref="lyricLine" class="text">{{line.txt}}</p>
+              </div>
+              <div class="pure-music">
+                <p></p>
+              </div>
             </div>
-            <div class="pure-music">
-              <p></p>
-            </div>
-          </div>
+          </scroll>
         </div>
         <div class="bottom">
           <div class="dot-wrapper">
-            <span class="dot"></span>
-            <span class="dot"></span>
+            <span class="dot" :class="{'active':currentShow==='cd'}"></span>
+            <span class="dot" :class="{'active':currentShow==='ly'}"></span>
           </div>
           <div class="progress-wrapper">
             <span class="time time-l">{{format(currentTime)}}</span>
@@ -109,6 +118,8 @@
   import ProgressCircle from 'base/progress-circle/progress-circle'
   import {playMode} from 'common/js/config'
   import {shuffle} from 'common/js/util'
+  import Lyric from 'lyric-parser'
+  import Scroll from 'base/scroll/scroll'
   // import {prefixStyle} from 'common/js/dom'
 
   // const transform = prefixStyle('transform')
@@ -118,7 +129,10 @@
       return {
         songReady: false, // 解决上一曲下一曲连续点击控制台报错
         currentTime: 0, // 播放时间
-        radius: 32 // 如果直接写在代买传递是字符串32，所以通过这里转换一下
+        radius: 32, // 如果直接写在代买传递是字符串32，所以通过这里转换一下
+        currentLyric: null, // 歌词默认为空
+        currentLineNum: 0, // 歌词行初始化 0
+        currentShow: 'cd' // 默认是 CD 层展示，左右滑动现实歌词
       }
     },
     computed: {
@@ -149,6 +163,9 @@
         'mode',
         'sequenceList'
       ])
+    },
+    created() {
+      this.touch = {} // 什么不在data里定义变量， 因为不需要 getter 和 setter 属性
     },
     methods: {
       back() { // 左上角后退按钮
@@ -199,6 +216,7 @@
       },
       togglePlaying() { // 歌曲播放/暂停
         this.setPlayingState(!this.playing)
+        this.currentLyric.stop()
       },
       end() { // 歌曲播放完毕自动切换到下一首， 如果当前模式是单曲循环，就走if 逻辑
         if (this.mode === playMode.loop) {
@@ -278,6 +296,47 @@
         })
         this.setCurrentIndex(index)
       },
+      getLyric() { // 歌词
+        this.currentSong.getLyric().then((lyric) => {
+          this.currentLyric = new Lyric(lyric, this.handleLyric)
+          if (this.playing) {
+            this.currentLyric.play()
+          }
+          console.log(this.currentLyric)
+        })
+      },
+      handleLyric({lineNum, txt}) { // 歌词行数计算
+        this.currentLineNum = lineNum
+        if (lineNum > 5) { // 如果歌词大于5行执行此代码，为了使歌词始终在中间
+          let lineEl = this.$refs.lyricLine[lineNum - 5]
+          this.$refs.lyricList.scrollToElement(lineEl, 1000)
+        } else {
+          this.$refs.lyricList.scrollTo(0, 0, 1000)
+        }
+      },
+      middleTouchStart(e) { // 实现cd 与歌词层 的左右滑动
+        this.touch.initiated = true
+        const touch = e.touches[0]
+        this.touch.startX = touch.pageX
+        this.touch.startY = touch.pageY
+      },
+      middleTouchMove(e) { // 实现cd 与歌词层 的左右滑动
+        if (!this.touch.initiated) {
+          return
+        }
+        const touch = e.touches[0]
+        const deltaX = touch.pageX - this.touch.startX
+        const deltay = touch.pageY - this.touch.startY
+        if (Math.abs(deltay) > Math.abs(deltaX)) { // 纵轴大于横轴就什么都不做
+          return
+        }
+        const left = this.currentShow === 'cd' ? 0 : -window.innerWidth
+        const width = Math.min(0, Math.max(-window.innerWidth, left + deltaX))
+        this.$refs.lyricList.$el.style['transform'] = `translate3d(${width}px, 0, 0)`
+        this.$refs.lyricList.$el.style['webkittransform'] = `translate3d(${width}px, 0, 0)`
+      },
+      middleTouchEnd(e) { // 实现cd 与歌词层 的左右滑动
+      },
       _pad(num, n = 2) {
         let len = num.toString().length
         while (len < n) {
@@ -316,6 +375,7 @@
         }
         this.$nextTick(() => {
           this.$refs.audio.play()
+          this.getLyric()
         }, 20)
       },
       playing(newPlaying) {
@@ -327,7 +387,8 @@
     },
     components: {
       ProgressBar,
-      ProgressCircle
+      ProgressCircle,
+      Scroll
     }
   }
 </script>

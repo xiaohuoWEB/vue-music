@@ -145,3 +145,6 @@ http://ustbhuangyi.com/music
           console.timeEnd('end');
        };
       howLongToSleep();
+
+十四、 ES6 Promise.resolve
+      解决异步嵌套问题

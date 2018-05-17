@@ -51,8 +51,16 @@ const devWebpackConfig = merge(baseWebpackConfig, {
             referer: 'https://y.qq.com/portal/player.html'
           },
           params: req.query
-        }).then((response) => {
-          res.json(response.data)
+        }).then((response) => { // 因为获取的是对象，所以需要通过正则进行匹配 括号里的base64的编码
+          var ret = response.data
+          if (typeof ret === 'string') {
+            var reg = /^\w+\(({[^()]+})\)$/
+            var mathes = ret.match(reg)
+            if (mathes) {
+              ret = JSON.parse(mathes[1])
+            }
+          }
+          res.json(ret)
         }).catch((e) => {
           console.log(e)
         })
