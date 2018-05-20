@@ -3,13 +3,15 @@
     <scroll class="recommend-content" ref="scroll" :data="discList">
       <div>
         <div v-if="recommends.length" class="slider-wrapper">
-          <slider>
-            <div v-for="(item,index) in recommends" :key="index">
-              <a :href="item.linkUrl">
-                <img @load="loadImage" :src="item.picUrl">
-              </a>
-            </div>
-          </slider>
+          <div class="slider-content">
+            <slider ref="slider">
+              <div v-for="(item,index) in recommends" :key="index">
+                <a :href="item.linkUrl">
+                  <img @load="loadImage" :src="item.picUrl">
+                </a>
+              </div>
+            </slider>
+          </div>
         </div>
         <div class="recommend-list">
           <h1 class="list-title">热门歌单推荐</h1>
@@ -55,9 +57,15 @@
       this._getRecommend() // 获取轮播图请求数据
       this._getDiscList() // 获取全部歌单
     },
+    activated() {
+      setTimeout(() => {
+        this.$refs.slider && this.$refs.slider.refresh()
+      }, 20)
+    },
     methods: {
       handlePlaylist(playlist) {
         const bottom = playlist.length > 0 ? '60px' : ''
+
         this.$refs.recommend.style.bottom = bottom
         this.$refs.scroll.refresh()
       },
@@ -84,8 +92,10 @@
       },
       loadImage() {
         if (!this.checkLoaded) {
-          this.$refs.scroll.refresh()
           this.checkLoaded = true
+          setTimeout(() => {
+            this.$refs.scroll.refresh()
+          }, 20)
         }
       },
       ...mapMutations({
@@ -114,7 +124,15 @@
       .slider-wrapper
         position: relative
         width: 100%
+        height: 0
+        padding-top: 40%
         overflow: hidden
+        .slider-content
+          position: absolute
+          top: 0
+          left: 0
+          width: 100%
+          height: 100%
       .recommend-list
         .list-title
           height: 65px
@@ -144,7 +162,7 @@
               color: $color-text
             .desc
               color: $color-text-d
-      .loading-contain
+      .loading-container
         position: absolute
         width: 100%
         top: 50%
