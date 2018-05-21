@@ -44,6 +44,19 @@ const devWebpackConfig = merge(baseWebpackConfig, {
           console.log(e)
         })
       })
+      app.get('/api/getCdInfo', function (req, res) {
+        let url = 'https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg'
+        axios.get(url, {
+          headers: {
+            referer: 'https://y.qq.com/n/yqq/playsquare/3844714697.html'
+          },
+          params: req.query
+        }).then((response) => {
+          res.json(response.data)
+        }).catch((e) => {
+          console.log(e)
+        })
+      })
       app.get('/api/getLyric', function (req, res) { // 歌词api请求
         let url = 'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg'
         axios.get(url, {

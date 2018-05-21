@@ -32,7 +32,7 @@
       },
       interval: {
         type: Number,
-        default: 2000
+        default: 4000
       }
     },
     mounted() { // 完成挂载
@@ -43,21 +43,38 @@
         if (this.autoPlay) {
           this._play()
         }
-        window.addEventListener('resize', () => {
-          if (!this.slider || !this.slider.enable) {
-            return
-          }
-          this._setSliderWidth(true)
-          this.slider.refresh()
-        })
       }, 20)//  浏览器的刷新一般是17毫秒
+
+      window.addEventListener('resize', () => {
+        if (!this.slider || !this.slider.enable) {
+          return
+        }
+        clearTimeout(this.resizeTimer)
+        this.resizeTimer = setTimeout(() => {
+          if (this.slider.isInTransition) {
+            this._onScrollEnd()
+          } else {
+            if (this.autoPlay) {
+              this._play()
+            }
+          }
+          this.refresh()
+        }, 60)
+      })
     },
     activated() {
       if (this.autoPlay) {
         this._play()
       }
     },
-
+    deactivated() {
+      this.slider.disable()
+      clearTimeout(this.timer)
+    },
+    beforeDestroy() {
+      this.slider.disable()
+      clearTimeout(this.timer)
+    },
     methods: { // 方法
       _setSliderWidth(isResize) { // 计算宽度
         this.children = this.$refs.sliderGroup.children

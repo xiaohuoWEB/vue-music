@@ -148,3 +148,27 @@ http://ustbhuangyi.com/music
 
 十四、 ES6 Promise.resolve
       解决异步嵌套问题
+
+十五、 ES6 数据访问--解构
+      es5的写法：
+      const people = {
+              name: 'lux',
+              age: 20
+          }
+          const name = people.name
+          const age = people.age
+          console.log(name + ' --- ' + age)
+
+      es6的写法：
+      //对象
+          const people = {
+              name: 'lux',
+              age: 20
+          }
+          const { name, age } = people
+          console.log(`${name} --- ${age}`)
+          //数组
+          const color = ['red', 'blue']
+          const [first, second] = color
+          console.log(first) //'red'
+          console.log(second) //'blue'
