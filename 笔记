@@ -172,3 +172,21 @@ http://ustbhuangyi.com/music
           const [first, second] = color
           console.log(first) //'red'
           console.log(second) //'blue'
+
+十六、 注意：不可在组件中直接赋值改版vuex 中的状态 this.fullScreen = false
+      需要通过mutations 改变，
+      定义mutation-types 和mutations 然后 用vuex的 mapMutations 代理方法调用
+
+      [types.SET_FULL_SCREEN](state, flag) {
+       state.fullScreen = flag
+       },
+       
+      import {mapGetters,mapMutations} from 'vuex';
+      methods:{
+       ...mapMutations({
+       setFullScreen:"SET_FULL_SCREEN",
+       }),
+       back(){
+       this.setFullScreen(false)
+       },
+      }

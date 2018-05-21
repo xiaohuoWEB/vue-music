@@ -48,7 +48,6 @@
         list.forEach((musicData) => {
           if (musicData.songid && musicData.albummid) {
             createSong(musicData).then(result => {
-              // console.log(result)
               ret.push(result)
             })
           }

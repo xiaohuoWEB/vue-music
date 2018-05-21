@@ -5,7 +5,7 @@
                 @after-enter="afterEnter"
                 @leave="leave"
                 @after-leave="afterLeave"
-      >
+    >
       <div class="normal-player" v-show="fullScreen">
         <div class="background">
           <img width="100%" height="100%" :src="currentSong.image">
@@ -107,6 +107,7 @@
            @error="error"
            @timeupdate="updateTime"
            @ended="end"
+           @pause="paused"
     ></audio>
   </div>
 </template>
@@ -124,7 +125,7 @@
 
   const transitionDuration = prefixStyle('transitionDuration')
 
-  // const transform = prefixStyle('transform')
+  const transform = prefixStyle('transform')
 
   export default {
     data() {
@@ -135,7 +136,8 @@
         currentLyric: null, // 歌词默认为空
         currentLineNum: 0, // 歌词行初始化 0
         currentShow: 'cd', // 默认是 CD 层展示，左右滑动现实歌词
-        playingLyic: '' // CD曾 下方歌词初始化
+        playingLyic: '', // CD曾 下方歌词初始化
+        urlhref: ''
       }
     },
     computed: {
@@ -210,7 +212,11 @@
         const {x, y, scale} = this._getPosAndScale()
         this.$refs.cdWrapper.style['transform'] = `translate3d(${x}px,${y}px,0) scale(${scale})`
         this.$refs.cdWrapper.style['webkittransform'] = `translate3d(${x}px,${y}px,0) scale(${scale})`
-        this.$refs.cdWrapper.addEventListener('transitionend', done)
+        const timer = setTimeout(done, 400)
+        this.$refs.cdWrapper.addEventListener('transitionend', () => {
+          clearTimeout(timer)
+          done()
+        })
       },
       afterLeave() {
         this.$refs.cdWrapper.style.transition = ''
@@ -218,6 +224,9 @@
         this.$refs.cdWrapper.style['webkittransform'] = ''
       },
       togglePlaying() { // 歌曲播放/暂停
+        if (!this.songReady) {
+          return
+        }
         this.setPlayingState(!this.playing)
         if (this.currentLyric) {
           this.currentLyric.togglePlay()
@@ -233,6 +242,7 @@
       loop() { // 单曲循环模式
         this.$refs.audio.currentTime = 0
         this.$refs.audio.play()
+        this.setPlayingState(true)
         if (this.currentLyric) {
           this.currentLyric.seek(0) // 当歌曲 单曲循环的时候，再次播放当前歌曲，歌词不同步问题 ，歌词重置到歌曲一开始
         }
@@ -243,6 +253,7 @@
         }
         if (this.playlist.length === 1) {
           this.loop()
+          return
         } else {
           let index = this.currentIndex - 1
           if (index === -1) {
@@ -261,6 +272,7 @@
         }
         if (this.playlist.length === 1) { // 处理极端情况，如果列表中只有1首歌曲，防止index顺序出错
           this.loop()
+          return
         } else {
           let index = this.currentIndex + 1
           if (index === this.playlist.length) {
@@ -274,9 +286,19 @@
         this.songReady = false
       },
       ready() { // 处理歌曲暂停时候点击 上-下 首歌曲导致控制台出错
+        // 监听 playing 这个事件可以确保慢网速或者快速切换歌曲导致的 DOM Exception
+        clearTimeout(this.timer)
         this.songReady = true
+        // this.canLyricPlay = true
+      },
+      paused() { // 检测视频如果是暂停模式就修改以下操作
+        this.setPlayingState(false)
+        if (this.currentLyric) {
+          this.currentLyric.stop()
+        }
       },
       error() { // 当歌曲url 或者其他原因导致出错，无法播放时处理函数
+        clearTimeout(this.timer)
         this.songReady = true
       },
       updateTime(e) {
@@ -318,6 +340,9 @@
       },
       getLyric() { // 歌词api
         this.currentSong.getLyric().then((lyric) => {
+          if (this.currentSong.lyric !== lyric) {
+            return
+          }
           this.currentLyric = new Lyric(lyric, this.handleLyric)
           if (this.playing) {
             this.currentLyric.play()
@@ -419,6 +444,21 @@
           scale
         }
       },
+      /**
+       * 计算内层Image的transform，并同步到外层容器
+       * @param wrapper
+       * @param inner
+       */
+      syncWrapperTransform (wrapper, inner) {
+        if (!this.$refs[wrapper]) {
+          return
+        }
+        let imageWrapper = this.$refs[wrapper]
+        let image = this.$refs[inner]
+        let wTransform = getComputedStyle(imageWrapper)[transform]
+        let iTransform = getComputedStyle(image)[transform]
+        imageWrapper.style[transform] = wTransform === 'none' ? iTransform : iTransform.concat(' ', wTransform)
+      },
       ...mapMutations({
         setFullScreen: 'SET_FULL_SCREEN',
         setPlayingState: 'SET_PLAYING_STATE',
@@ -429,9 +469,10 @@
     },
     watch: {
       currentSong(newSong, oldSong) {
-        if (newSong.id === oldSong.id) { // 如果切换随机图标歌曲ID 不变 就像下面执行歌曲播放
+        if (!newSong.id || !newSong.url || newSong.id === oldSong.id) {
           return
         }
+        // this.canLyricPlay = false
         if (this.currentLyric) {
           this.currentLyric.stop()
           // 重置为null (各个参数)
@@ -440,16 +481,22 @@
           this.playingLyric = ''
           this.currentLineNum = 0
         }
-        setTimeout(() => { // 不用nextTick ，防止手机浏览器 或者 微信播放器无法正常播放
-          this.$refs.audio.play()
-          this.getLyric()
-        }, 1000)
       },
       playing(newPlaying) {
+        if (!this.songReady) {
+          return
+        }
         const audio = this.$refs.audio
         this.$nextTick(() => {
           newPlaying ? audio.play() : audio.pause()
         })
+        if (!newPlaying) {
+          if (this.fullScreen) {
+            this.syncWrapperTransform('imageWrapper', 'image')
+          } else {
+            this.syncWrapperTransform('miniWrapper', 'miniImage')
+          }
+        }
       }
     },
     components: {
