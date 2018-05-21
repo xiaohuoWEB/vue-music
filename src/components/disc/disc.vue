@@ -12,9 +12,6 @@
   import {createSong} from 'common/js/song'
 
   export default {
-    components: {
-      MusicList
-    },
     computed: {
       title() {
         return this.disc.dissname
@@ -51,13 +48,16 @@
         list.forEach((musicData) => {
           if (musicData.songid && musicData.albummid) {
             createSong(musicData).then(result => {
-              console.log(result)
+              // console.log(result)
               ret.push(result)
             })
           }
         })
         return ret
       }
+    },
+    components: {
+      MusicList
     }
   }
 </script>
