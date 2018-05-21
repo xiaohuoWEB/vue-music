@@ -13,7 +13,6 @@
 <script type="text/ecmascript-6">
   import BScroll from 'better-scroll'
   import {addClass} from 'common/js/dom'
-
   export default {
     data() {
       return {
@@ -44,9 +43,8 @@
           this._play()
         }
       }, 20)//  浏览器的刷新一般是17毫秒
-
       window.addEventListener('resize', () => {
-        if (!this.slider || !this.slider.enable) {
+        if (!this.slider || !this.slider.enabled) {
           return
         }
         clearTimeout(this.resizeTimer)
@@ -76,6 +74,12 @@
       clearTimeout(this.timer)
     },
     methods: { // 方法
+      refresh() {
+        if (this.slider) { // 刷新slide 宽度计算
+          this._setSliderWidth()
+          this.slider.refresh()
+        }
+      },
       _setSliderWidth(isResize) { // 计算宽度
         this.children = this.$refs.sliderGroup.children
         let width = 0
@@ -83,7 +87,6 @@
         for (let i = 0; i < this.children.length; i++) {
           let child = this.children[i]
           addClass(child, 'slider-item')
-
           child.style.width = sliderWidth + 'px'
           width += sliderWidth
         }
@@ -103,14 +106,12 @@
             speed: 400 // 轮播图切换的动画时间
           }
         })
-
         this.slider.on('scrollEnd', () => { // 派发scrollEnd事件,获取当前页currentPageIndex
           let pageIndex = this.slider.getCurrentPage().pageX // 获取索引
           /* if (this.loop) { // 如果是循环
              pageIndex += 0 // 因为循环模式下默认会节点拷贝了，所以实际index 应该 -1
           } */
           this.currentPageIndex = pageIndex // 赋值给当前currentPageIndex
-
           if (this.autoPlay) { // 判断如果是自动轮播
             clearTimeout(this.timer) // 清除定时器 重新载入轮播
             this._play()
@@ -139,7 +140,6 @@
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
   @import "~common/stylus/variable"
-
   .slider
     min-height: 1px
     .slider-group
