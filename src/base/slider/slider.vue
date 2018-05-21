@@ -46,7 +46,7 @@
       }, 20)//  浏览器的刷新一般是17毫秒
 
       window.addEventListener('resize', () => {
-        if (!this.slider || !this.slider.enable) {
+        if (!this.slider || !this.slider.enabled) {
           return
         }
         clearTimeout(this.resizeTimer)
@@ -76,6 +76,12 @@
       clearTimeout(this.timer)
     },
     methods: { // 方法
+      refresh() {
+        if (this.slider) { // 刷新slide 宽度计算
+          this._setSliderWidth()
+          this.slider.refresh()
+        }
+      },
       _setSliderWidth(isResize) { // 计算宽度
         this.children = this.$refs.sliderGroup.children
         let width = 0
