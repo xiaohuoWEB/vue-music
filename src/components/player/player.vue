@@ -136,8 +136,7 @@
         currentLyric: null, // 歌词默认为空
         currentLineNum: 0, // 歌词行初始化 0
         currentShow: 'cd', // 默认是 CD 层展示，左右滑动现实歌词
-        playingLyic: '', // CD曾 下方歌词初始化
-        urlhref: ''
+        playingLyic: '' // CD曾 下方歌词初始化
       }
     },
     computed: {
@@ -472,7 +471,6 @@
         if (!newSong.id || !newSong.url || newSong.id === oldSong.id) {
           return
         }
-        // this.canLyricPlay = false
         if (this.currentLyric) {
           this.currentLyric.stop()
           // 重置为null (各个参数)
@@ -481,6 +479,14 @@
           this.playingLyric = ''
           this.currentLineNum = 0
         }
+
+        clearTimeout(this.timer)
+        this.timer = setTimeout(() => {
+          this.songReady = true
+          this.$refs.audio.src = newSong.url
+          this.$refs.audio.play()
+          this.getLyric()
+        }, 0)
       },
       playing(newPlaying) {
         if (!this.songReady) {
