@@ -24,8 +24,8 @@
         >
           <div class="middle-l" ref="middleL">
             <div class="cd-wrapper" ref="cdWrapper">
-              <div class="cd" :class="cdCls"  ref="imageWrapper">
-                <img ref="image" class="image" :src="currentSong.image">
+              <div class="cd" ref="imageWrapper">
+                <img ref="image" :class="cdCls" class="image" :src="currentSong.image">
               </div>
             </div>
             <div class="playing-lyric-wrapper">
@@ -125,7 +125,7 @@
 
   const transitionDuration = prefixStyle('transitionDuration')
 
-  const transform = prefixStyle('transform')
+  // const transform = prefixStyle('transform')
 
   export default {
     data() {
@@ -142,7 +142,7 @@
     },
     computed: {
       cdCls() { // 大图cd 旋转
-        return this.playing ? 'play' : 'play pause'
+        return this.playing ? 'play' : ''
       },
       playIcon() { // 播放器暂停/播放 图标状态切换
         return this.playing ? 'icon-pause' : 'icon-play'
@@ -175,6 +175,9 @@
     mounted() {
       // --创建页面监听，页面加载完毕--触发音频播放
       const audioDOM = this.$refs.audio
+      if (!audioDOM.src) { // 为防止控制台报错但不影响正常使用，加入此判断audio src 是否有url
+        return
+      }
       let eventListentouch = () => {
         function audioAutoPlay() {
           audioDOM.play()
@@ -307,9 +310,8 @@
         }
         this.songReady = false
       },
-      ready() { // 处理歌曲暂停时候点击 上-下 首歌曲导致控制台出错
+      ready() { // 处理歌曲暂停时候点击 上-下 首歌曲导致控制台出错（当歌曲加载就绪）
         // 监听 playing 这个事件可以确保慢网速或者快速切换歌曲导致的 DOM Exception
-        clearTimeout(this.timer)
         this.songReady = true
         // this.canLyricPlay = true
       },
@@ -319,8 +321,7 @@
           this.currentLyric.stop()
         }
       },
-      error() { // 当歌曲url 或者其他原因导致出错，无法播放时处理函数
-        clearTimeout(this.timer)
+      error() { // 当歌曲发生错误的时候，做用户体验，防止用户快速切换导致报错。
         this.songReady = true
       },
       updateTime(e) {
@@ -466,21 +467,6 @@
           scale
         }
       },
-      /**
-       * 计算内层Image的transform，并同步到外层容器
-       * @param wrapper
-       * @param inner
-       */
-      syncWrapperTransform (wrapper, inner) {
-        if (!this.$refs[wrapper]) {
-          return
-        }
-        let imageWrapper = this.$refs[wrapper]
-        let image = this.$refs[inner]
-        let wTransform = getComputedStyle(imageWrapper)[transform]
-        let iTransform = getComputedStyle(image)[transform]
-        imageWrapper.style[transform] = wTransform === 'none' ? iTransform : iTransform.concat(' ', wTransform)
-      },
       ...mapMutations({
         setFullScreen: 'SET_FULL_SCREEN',
         setPlayingState: 'SET_PLAYING_STATE',
@@ -526,13 +512,6 @@
         this.$nextTick(() => {
           newPlaying ? audio.play() : audio.pause()
         })
-        if (!newPlaying) {
-          if (this.fullScreen) {
-            this.syncWrapperTransform('imageWrapper', 'image')
-          } else {
-            this.syncWrapperTransform('miniWrapper', 'miniImage')
-          }
-        }
       }
     },
     components: {
@@ -610,24 +589,23 @@
             left: 10%
             top: 0
             width: 80%
+            box-sizing: border-box
             height: 100%
             .cd
               width: 100%
               height: 100%
-              box-sizing: border-box
-              border: 10px solid rgba(255, 255, 255, 0.1)
               border-radius: 50%
-              &.play
-                animation: rotate 20s linear infinite
-              &.pause
-                animation-play-state: paused
               .image
                 position: absolute
                 left: 0
                 top: 0
                 width: 100%
                 height: 100%
+                box-sizing: border-box
                 border-radius: 50%
+                border: 10px solid rgba(255, 255, 255, 0.1)
+              .play
+                animation: rotate 20s linear infinite
           .playing-lyric-wrapper
             width: 80%
             margin: 30px auto 0 auto
