@@ -136,7 +136,8 @@
         currentLyric: null, // 歌词默认为空
         currentLineNum: 0, // 歌词行初始化 0
         currentShow: 'cd', // 默认是 CD 层展示，左右滑动现实歌词
-        playingLyic: '' // CD曾 下方歌词初始化
+        playingLyic: '', // CD曾 下方歌词初始化
+        urlmusics: ''
       }
     },
     computed: {
@@ -170,6 +171,28 @@
     },
     created() {
       this.touch = {} // 什么不在data里定义变量， 因为不需要 getter 和 setter 属性
+    },
+    mounted() {
+      // --创建页面监听，页面加载完毕--触发音频播放
+      const audioDOM = this.$refs.audio
+      let eventListentouch = () => {
+        function audioAutoPlay() {
+          audioDOM.play()
+        }
+        audioAutoPlay()
+        document.removeEventListener('touchstart', eventListentouch, true)
+      }
+      document.addEventListener('touchstart', eventListentouch, true)
+
+      // 另一种模拟click屏幕事件
+      /* let handle = () => {
+        audioDOM.load()
+        audioDOM.play()
+        console.log('0')
+        document.removeEventListener('click', handle, true)
+      }
+      document.addEventListener('click', handle, true)
+      console.log('1') */
     },
     methods: {
       back() { // 左上角后退按钮
@@ -480,13 +503,20 @@
           this.currentLineNum = 0
         }
 
-        clearTimeout(this.timer)
+        // hack 方法2 解决ios 微信端不能自动播放 需要与 mounted 钩子 配合使用
+        const audioDOM = this.$refs.audio
+        setTimeout(() => {
+          audioDOM.play()
+          this.getLyric()
+        }, 500)
+        // hack 方法1 解决ios 微信端不能自动播放
+        /* clearTimeout(this.timer)
         this.timer = setTimeout(() => {
           this.songReady = true
           this.$refs.audio.src = newSong.url
           this.$refs.audio.play()
           this.getLyric()
-        }, 0)
+        }, 0) */
       },
       playing(newPlaying) {
         if (!this.songReady) {
