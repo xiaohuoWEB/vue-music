@@ -124,7 +124,6 @@
   import {prefixStyle} from 'common/js/dom'
 
   const transitionDuration = prefixStyle('transitionDuration')
-
   // const transform = prefixStyle('transform')
 
   export default {
@@ -467,6 +466,24 @@
           scale
         }
       },
+      /**
+       * 计算内层Image的transform，并同步到外层容器
+       * @param wrapper
+       * @param inner
+       */
+      syncWrapperTransform (wrapper, inner) { // wrapper 图片的父级DOM  inner 图片自身DOM
+        if (!this.$refs[wrapper]) {
+          return
+        }
+        let imageWrapper = this.$refs[wrapper]
+        let image = this.$refs[inner]
+        let wTransform = getComputedStyle(imageWrapper)['transform']
+        let iTransform = getComputedStyle(image)['transform']
+        console.log('iTransform:  ' + iTransform)
+        console.log('wTransform:  ' + wTransform)
+        console.log('///:   ' + iTransform.concat(' ', wTransform))
+        imageWrapper.style['transform'] = wTransform === 'none' ? iTransform : iTransform.concat(' ', wTransform)
+      },
       ...mapMutations({
         setFullScreen: 'SET_FULL_SCREEN',
         setPlayingState: 'SET_PLAYING_STATE',
@@ -512,6 +529,13 @@
         this.$nextTick(() => {
           newPlaying ? audio.play() : audio.pause()
         })
+        if (!newPlaying) {
+          if (this.fullScreen) {
+            this.syncWrapperTransform('imageWrapper', 'image')
+          } else {
+            this.syncWrapperTransform('miniWrapper', 'miniImage')
+          }
+        }
       }
     },
     components: {
