@@ -124,7 +124,7 @@
   import {prefixStyle} from 'common/js/dom'
 
   const transitionDuration = prefixStyle('transitionDuration')
-  // const transform = prefixStyle('transform')
+  const transform = prefixStyle('transform')
 
   export default {
     data() {
@@ -387,6 +387,8 @@
       },
       middleTouchStart(e) { // 实现cd 与歌词层 的左右滑动
         this.touch.initiated = true
+        // 用来判断是否是一次移动 ，阻止再次触摸屏幕触发touch事件
+        this.touch.moved = false
         const touch = e.touches[0]
         this.touch.startX = touch.pageX
         this.touch.startY = touch.pageY
@@ -397,23 +399,26 @@
         }
         const touch = e.touches[0]
         const deltaX = touch.pageX - this.touch.startX
-        const deltay = touch.pageY - this.touch.startY
-        if (Math.abs(deltay) > Math.abs(deltaX)) { // 纵轴大于横轴就什么都不做
+        const deltaY = touch.pageY - this.touch.startY
+        if (Math.abs(deltaY) > Math.abs(deltaX)) { // 纵轴大于横轴就什么都不做
           return
+        }
+        if (!this.touch.moved) { // 阻止再次触摸屏幕触发touch事件
+          this.touch.moved = true
         }
         const left = this.currentShow === 'cd' ? 0 : -window.innerWidth
         const offsetWidth = Math.min(0, Math.max(-window.innerWidth, left + deltaX))
         this.touch.percent = Math.abs(offsetWidth / window.innerWidth)
-        this.$refs.lyricList.$el.style['transform'] = `translate3d(${offsetWidth}px, 0, 0)`
-        this.$refs.lyricList.$el.style['webkittransform'] = `translate3d(${offsetWidth}px, 0, 0)`
-
+        this.$refs.lyricList.$el.style[transform] = `translate3d(${offsetWidth}px, 0, 0)`
         // middleTouchMove的时候 transitionDuration动画效果默认是0
         this.$refs.lyricList.$el.style[transitionDuration] = 0 // transitionDuration css3动画属性
-
         this.$refs.middleL.style.opacity = 1 - this.touch.percent
         this.$refs.middleL.style[transitionDuration] = 0
       },
       middleTouchEnd(e) { // 实现cd 与歌词层 的左右滑动
+        if (!this.touch.moved) { // 阻止再次触摸屏幕触发touch事件
+          return
+        }
         let offsetWidth
         let opacity
         if (this.currentShow === 'cd') {
@@ -435,13 +440,12 @@
             opacity = 0
           }
         }
-        this.$refs.lyricList.$el.style['transform'] = `translate3d(${offsetWidth}px, 0, 0)`
-        this.$refs.lyricList.$el.style['webkittransform'] = `translate3d(${offsetWidth}px, 0, 0)`
+        this.$refs.lyricList.$el.style[transform] = `translate3d(${offsetWidth}px, 0, 0)`
         const time = 300
         this.$refs.lyricList.$el.style[transitionDuration] = `${time}ms` // transitionDuration css3动画属性
-
         this.$refs.middleL.style.opacity = opacity
         this.$refs.middleL.style[transitionDuration] = `${time}ms`
+        this.touch.initiated = false
       },
       _pad(num, n = 2) { // 歌曲时间 补 0
         let len = num.toString().length
