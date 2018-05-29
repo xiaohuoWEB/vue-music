@@ -9,6 +9,7 @@ const state = {
   sequenceList: [], // 随机列表经过计算后得到的
   mode: playMode.sequence, // 默认播放模式 顺序播放
   currentIndex: -1, // 当前播放索引
-  disc: {} // 首页推荐歌曲列表详情
+  disc: {}, // 首页推荐歌曲列表详情
+  topList: {}// 歌单列表
 }
 export default state
