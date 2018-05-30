@@ -190,3 +190,6 @@ http://ustbhuangyi.com/music
        this.setFullScreen(false)
        },
       }
+
+十七、 音乐播放器播放源接口是从Vkey中获取的，由 filename 与 vkey拼接而成
+      filename参数是从列表页面传递过来的

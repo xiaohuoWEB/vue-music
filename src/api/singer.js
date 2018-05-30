@@ -20,7 +20,7 @@ export function getSingerList() { // 歌手列表api数据接口
   return jsonp(url, data, options)
 }
 
-export function getMusicVkey(songmid) {
+export function getMusicVkey(songmid, strMediaMid) {
   // console.log(songId)
   const url = 'https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg'
   // const a = 'MusicJsonCallback' + (Math.random() + '').replace('0.', '')
@@ -35,7 +35,7 @@ export function getMusicVkey(songmid) {
     hostUin: 0,
     cid: 205361747,
     guid: 2512456516,
-    filename: `${'C400' + songmid + '.m4a'}`
+    filename: `${'C400' + strMediaMid + '.m4a'}`
     // callback: a
 
   })
