@@ -4,7 +4,7 @@
 
 const path = require('path')
 
-
+// 获取本机IP地址 赋值给 host
 var os=require('os'),
   iptable={},
   ifaces=os.networkInterfaces();
@@ -31,7 +31,7 @@ module.exports = {
     host: iptable,
     // host: '192.168.43.171',
     port: 9000, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
-    autoOpenBrowser: false,
+    autoOpenBrowser: true,
     errorOverlay: true,
     notifyOnErrors: true,
     poll: false, // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-
