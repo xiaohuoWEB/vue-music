@@ -5,6 +5,19 @@
 const path = require('path')
 
 
+var os=require('os'),
+  iptable={},
+  ifaces=os.networkInterfaces();
+for (var dev in ifaces) {
+  ifaces[dev].forEach(function(details,alias){
+    console.log(details)
+    if (details.family=='IPv4') {
+      iptable = details.address.slice(0);
+      // iptable[dev+(alias?':'+alias:'')]=details.address;
+    }
+  });
+}
+
 module.exports = {
   dev: {
 
@@ -15,8 +28,8 @@ module.exports = {
 
     // Various Dev Server settings
     // host: 'localhost', // can be overwritten by process.env.HOST
-    host: '192.168.7.133',
-    // host: '192.168.43.39',
+    host: iptable,
+    // host: '192.168.43.171',
     port: 9000, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: false,
     errorOverlay: true,
