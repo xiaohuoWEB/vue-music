@@ -5,17 +5,20 @@
 const path = require('path')
 
 // 获取本机IP地址 赋值给 host
+var iparray = [];
 var os=require('os'),
   iptable={},
   ifaces=os.networkInterfaces();
 for (var dev in ifaces) {
   ifaces[dev].forEach(function(details,alias){
     if (details.family=='IPv4') {
-      iptable = details.address.slice(0);
+      iptable = details.address;
+      iparray.push(iptable)
       // iptable[dev+(alias?':'+alias:'')]=details.address;
     }
   });
 }
+iparray.sort();
 
 module.exports = {
   dev: {
@@ -27,7 +30,7 @@ module.exports = {
 
     // Various Dev Server settings
     // host: 'localhost', // can be overwritten by process.env.HOST
-    host: iptable,
+    host: iparray[1],
     // host: '192.168.43.171',
     port: 9000, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: true,
