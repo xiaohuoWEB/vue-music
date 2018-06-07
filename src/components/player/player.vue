@@ -483,9 +483,9 @@
         let image = this.$refs[inner]
         let wTransform = getComputedStyle(imageWrapper)['transform']
         let iTransform = getComputedStyle(image)['transform']
-        console.log('iTransform:  ' + iTransform)
-        console.log('wTransform:  ' + wTransform)
-        console.log('///:   ' + iTransform.concat(' ', wTransform))
+        // console.log('iTransform:  ' + iTransform)
+        // console.log('wTransform:  ' + wTransform)
+        // console.log('///:   ' + iTransform.concat(' ', wTransform))
         imageWrapper.style['transform'] = wTransform === 'none' ? iTransform : iTransform.concat(' ', wTransform)
       },
       ...mapMutations({

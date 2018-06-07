@@ -2,6 +2,9 @@
   <div class="song-list">
     <ul>
       <li @click="selectItem(song, index) in songs" v-for="(song,index) in songs" :key="index" class="item">
+        <div class="rank" v-show="rank">
+          <span :class="getRankCls(index)" v-text="getRankText(index)"></span><!--也可以写成 {{getRankText(index)}}-->
+        </div>
         <div class="content">
           <h2 class="name">{{song.name}}</h2>
           <p class="desc">{{getDesc(song)}}</p>
@@ -17,14 +20,34 @@
       songs: {
         type: Array,
         default: () => []
+      },
+      rank: {
+        type: Boolean,
+        default: false // 默认隐藏
       }
     },
     methods: {
-      selectItem(item, index) {
+      selectItem(item, index) { // 列表中当前点击歌曲
         this.$emit('select', item, index)
       },
       getDesc(song) {
-        return `${song.singer} · ${song.album}`
+        return `${song.singer} · ${song.album}` // 歌曲与歌手
+      },
+      getRankCls(index) { // 代表前3手歌曲使用图标进行排序，我改成某Q音乐版本的
+        if (index <= 2) {
+          // return `icon icon${index}` (原)
+          return 'textcolor'
+        } else {
+          return 'text'
+        }
+      },
+      getRankText(index) {
+        /* if (index > 2) { (原)
+          return index + 1
+        } */
+        if (index >= 0) { // 从1开始进行索引
+          return index + 1
+        }
       }
     }
   }
@@ -40,6 +63,29 @@
       box-sizing: border-box
       height: 64px
       font-size: $font-size-medium
+      .rank
+        flex: 0 0 25px
+        width: 25px
+        margin-right: 30px
+        text-align: center
+        .icon
+          display: inline-block
+          width: 25px
+          height: 24px
+          background-size: 25px 24px
+        .textcolor
+          font-size: $font-size-large
+          color: $color-theme
+          /* &.icon0
+            bg-image('first')
+          &.icon1
+            bg-image('second')
+          &.icon2
+            bg-image('third') */
+        .text
+          // color: $color-theme
+          color: $color-text
+          font-size: $font-size-large
       .content
         flex: 1
         line-height: 20px

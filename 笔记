@@ -193,3 +193,20 @@ http://ustbhuangyi.com/music
 
 十七、 音乐播放器播放源接口是从Vkey中获取的，由 filename 与 vkey拼接而成
       filename参数是从列表页面传递过来的
+
+十八、 通过nodejs 获取本机ip地址，省去每次手动修改index配置host地址
+      // 获取本机IP地址 赋值给 host
+      var iparray = [];
+      var os=require('os'),
+        iptable={},
+        ifaces=os.networkInterfaces();
+      for (var dev in ifaces) {
+        ifaces[dev].forEach(function(details,alias){
+          if (details.family=='IPv4') {
+            iptable = details.address;
+            iparray.push(iptable)
+            // iptable[dev+(alias?':'+alias:'')]=details.address;
+          }
+        });
+      }
+      iparray.sort();
