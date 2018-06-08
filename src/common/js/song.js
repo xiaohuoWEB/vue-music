@@ -58,7 +58,7 @@ function getSongURL(songmid, strMediaMid) { // 获取歌曲路径
   })
 }
 
-function filterSinger(singer) {
+export function filterSinger(singer) {
   let ret = []
   if (!singer) {
     return ''
