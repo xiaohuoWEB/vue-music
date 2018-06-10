@@ -210,3 +210,5 @@ http://ustbhuangyi.com/music
         });
       }
       iparray.sort();
+
+小计： 搜索结果，如果搜索 歌手 ，列表中的第一个应该展示为 歌手图片，后续优化
