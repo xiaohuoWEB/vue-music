@@ -25,17 +25,17 @@ export function getMusicVkey(mid) { // 歌曲源vkey
   const url = '/api/getMusicVkey'
   // const a = 'MusicJsonCallback' + (Math.random() + '').replace('0.', '')
   const data = Object.assign({}, commonParams, {
+    hostUin: 0,
     format: 'json',
-    songmid: mid,
+    inCharset: 'utf8',
+    outCharset: 'utf-8',
     notice: 0,
     platform: 'yqq',
     needNewCode: 0,
-    uin: 0,
-    loginUin: 0,
-    hostUin: 0,
     cid: 205361747,
-    guid: 2512456516,
-    filename: `${'C400' + mid + '.m4a'}`
+    songmid: mid,
+    filename: 'C400' + mid + '.m4a',
+    guid: 5376099580
     // callback: a
 
   })
