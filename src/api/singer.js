@@ -1,5 +1,6 @@
 import jsonp from 'common/js/jsonp'
 import {commonParams, options} from './config'
+import axios from 'axios'
 
 export function getSingerList() { // 歌手列表api数据接口
   const url = 'https://c.y.qq.com/v8/fcg-bin/v8.fcg'
@@ -20,13 +21,12 @@ export function getSingerList() { // 歌手列表api数据接口
   return jsonp(url, data, options)
 }
 
-export function getMusicVkey(songmid, strMediaMid) {
-  // console.log(songId)
-  const url = 'https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg'
+export function getMusicVkey(mid) { // 歌曲源vkey
+  const url = '/api/getMusicVkey'
   // const a = 'MusicJsonCallback' + (Math.random() + '').replace('0.', '')
   const data = Object.assign({}, commonParams, {
     format: 'json',
-    songmid: songmid,
+    songmid: mid,
     notice: 0,
     platform: 'yqq',
     needNewCode: 0,
@@ -35,15 +35,16 @@ export function getMusicVkey(songmid, strMediaMid) {
     hostUin: 0,
     cid: 205361747,
     guid: 2512456516,
-    filename: `${'C400' + strMediaMid + '.m4a'}`
+    filename: `${'C400' + mid + '.m4a'}`
     // callback: a
 
   })
-  const options = {
-    // param: 'jsonpCallback',
-    // name: a
-  }
-  return jsonp(url, data, options)
+   // return jsonp(url, data, options)
+  return axios.get(url, {
+    params: data
+  }).then((res) => {
+    return Promise.resolve(res.data)
+  })
 }
 
 export function getSingerDetail(singerId) {

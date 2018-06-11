@@ -1,5 +1,5 @@
 <template>
-  <div class="suggest">
+  <scroll :data="result" class="suggest">
     <ul class="suggest-list">
       <li class="suggest-item" v-for="(item, index) in result" :key="index">
         <div class="icon">
@@ -11,13 +11,14 @@
         </div>
       </li>
     </ul>
-  </div>
+  </scroll>
 </template>
 
 <script type="text/ecmascript-6">
   import {search} from 'api/search'
   import {ERR_OK} from 'api/config'
-  import {filterSinger} from 'common/js/song'
+  import {createSong} from 'common/js/song'
+  import Scroll from 'base/scroll/scroll'
 
   const TYPE_SINGER = 'singer'
   const perpage = 20 // 默认显示20条数据
@@ -55,12 +56,21 @@
           ret.push({...data.zhida, ...{type: TYPE_SINGER}})
         }
         if (data.song) {
-          ret = ret.concat(data.song.list)
+          ret = ret.concat(this._normalizeSongs(data.song.list))
         }
         return ret
       },
+      _normalizeSongs(list) {
+        let ret = []
+        list.forEach((musicData) => {
+          if (musicData.songid && musicData.albummid) {
+            ret.push(createSong(musicData))
+          }
+        })
+        return ret
+      },
       getIconCls(item) {
-        console.log(item)
+        // console.log(item)
         // 如果搜索歌曲的时候item.type = 1 列表前使用音乐图标 ， 如果搜索的是歌手 item.type = singer 列表前使用user用户图标
         if (item.type === TYPE_SINGER) {
           this.avatar = true
@@ -80,7 +90,7 @@
         if (item.type === TYPE_SINGER) {
           return item.singername
         } else {
-          return `${item.songname} - ${filterSinger(item.singer)}`
+          return `${item.name}-${item.singer}`
         }
       }
     },
@@ -88,6 +98,9 @@
       query() {
         this.search()
       }
+    },
+    components: {
+      Scroll
     }
   }
 </script>

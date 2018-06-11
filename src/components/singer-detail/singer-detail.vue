@@ -7,7 +7,7 @@
 <script type="text/ecmascript-6">
   import {mapGetters} from 'vuex'
   import {ERR_OK} from 'api/config'
-  import {getSingerDetail} from 'api/singer' // 获取歌手详情列表数据
+  import {getSingerDetail, getMusicVkey} from 'api/singer' // 获取歌手详情列表数据
   import {createSong} from 'common/js/song'
   import MusicList from 'components/music-list/music-list'
   export default {
@@ -51,9 +51,12 @@
           // 一个object里面包含一个musicData的object，这个项目我们只需要musicData，所以可以这样定义：{musicData}
           let {musicData} = item
           if (musicData.songid && musicData.albummid) {
-            createSong(musicData).then(result => {
-              // console.log(result)
-              ret.push(result)
+            getMusicVkey(musicData.songmid).then((res) => {
+              if (res.code === ERR_OK) {
+                const svkey = res.data.items
+                const songVkey = svkey[0].vkey
+                ret.push(createSong(musicData, songVkey))
+              }
             })
           }
         })
