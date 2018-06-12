@@ -52,7 +52,10 @@
           let {musicData} = item
           if (musicData.songid && musicData.albummid) {
             getMusicVkey(musicData.songmid, musicData.strMediaMid).then((res) => {
-              let songVkey = res.data.items[0].vkey
+              let songVkey = ''
+              if (res.code === ERR_OK) {
+                songVkey = res.data.items[0].vkey
+              }
               ret.push(createSong(musicData, songVkey, musicData.strMediaMid))
             })
           }
