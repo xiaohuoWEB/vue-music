@@ -12,10 +12,12 @@ const mutations = {
     state.funllScreen = flag
   },
   [types.SET_PLAYLIST](state, list) {
-    state.playlist = list
+    // state.playlist = list
+    state.playlist = Object.assign([], list)
   },
   [types.SET_SEQJUENCE_LIST](state, list) {
-    state.sequenceList = list
+    // state.sequenceList = list
+    state.sequenceList = Object.assign([], list)
   },
   [types.SET_PLAY_MODE](state, mode) {
     state.mode = mode

@@ -82,7 +82,8 @@ const devWebpackConfig = merge(baseWebpackConfig, {
         let url = 'https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg'
         axios.get(url, {
           headers: {
-            referer: 'https://y.qq.com/portal/player.html'
+            referer: 'https://y.qq.com/portal/player.html',
+            host: 'c.y.qq.com'
           },
           params: req.query
         }).then((response) => {
