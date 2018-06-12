@@ -21,25 +21,30 @@ export function getSingerList() { // 歌手列表api数据接口
   return jsonp(url, data, options)
 }
 
-export function getMusicVkey(mid) { // 歌曲源vkey
+export function getMusicVkey(songmid, strMediaMid) {
+  // const url = 'https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg'
   const url = '/api/getMusicVkey'
   // const a = 'MusicJsonCallback' + (Math.random() + '').replace('0.', '')
   const data = Object.assign({}, commonParams, {
-    hostUin: 0,
     format: 'json',
-    inCharset: 'utf8',
-    outCharset: 'utf-8',
+    songmid: songmid,
     notice: 0,
     platform: 'yqq',
     needNewCode: 0,
+    uin: 0,
+    loginUin: 0,
+    hostUin: 0,
     cid: 205361747,
-    songmid: mid,
-    filename: 'C400' + mid + '.m4a',
-    guid: 5376099580
+    guid: 2512456516,
+    filename: `${'C400' + strMediaMid + '.m4a'}`
     // callback: a
 
   })
-   // return jsonp(url, data, options)
+  /* const options = {
+    // param: 'jsonpCallback',
+    // name: a
+  }
+  return jsonp(url, data, options) */
   return axios.get(url, {
     params: data
   }).then((res) => {

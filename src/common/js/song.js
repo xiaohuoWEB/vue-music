@@ -1,7 +1,7 @@
 import {getLyric} from 'api/song'
 import {ERR_OK} from 'api/config'
 import {Base64} from 'js-base64'
-import {getMusicVkey} from 'api/singer'
+// import {getMusicVkey} from 'api/singer'
 
 export default class Song {
   // 一个类必须有constructor()方法，如果没有显式定义，一个空的constructor()方法会被默认添加。
@@ -33,7 +33,7 @@ export default class Song {
     })
   }
 }
-export async function createSong(musicData) { // 封装 歌曲所需要的数据
+export function createSong(musicData, songVkey, strMediaMid) { // 封装 歌曲所需要的数据
   return new Song({
     id: musicData.songid,
     mid: musicData.songmid,
@@ -42,29 +42,31 @@ export async function createSong(musicData) { // 封装 歌曲所需要的数据
     album: musicData.albumname,
     duration: musicData.interval,
     image: `https://y.gtimg.cn/music/photo_new/T002R300x300M000${musicData.albummid}.jpg?max_age=2592000`,
-    url: await getSongURL(musicData.songmid).catch(function (err) {
-    console('获取歌曲Vkey失败' + err)
-  })
+    url: `http://dl.stream.qqmusic.qq.com/C400${strMediaMid}.m4a?guid=2512456516&vkey=${songVkey}&uin=0&fromtag=66`
+    /* url: await getSongURL(musicData.songmid, musicData.strMediaMid).catch(function (err) {
+      console('获取歌曲Vkey失败' + err)
+    }) */
   })
 }
 
-function getSongURL(songmid) { // 获取歌曲路径
+/* function getSongURL(songmid, strMediaMid) { // 获取歌曲路径
+  // console.log(strMediaMid)
   // (songmid用于Vkey接口的songmid, strMediaMid用于Vkey接口的filename  *****此参数是歌曲的核心源****** )
   return new Promise((resolve, reject) => {
-    /* resolve(getMusicVkey(songmid).then((res) => {
+    resolve(getMusicVkey(songmid, strMediaMid).then((res) => {
       return `http://dl.stream.qqmusic.qq.com/${res.data.items[0].filename}?guid=2512456516&vkey=${res.data.items[0].vkey}&uin=0&fromtag=66`
-    })) */
-    resolve(getMusicVkey(songmid).then((res) => {
-      if (res.code === ERR_OK) {
-        console.log(res)
-        /* const svkey = res.data.items
-        const songVkey = svkey[0].vkey
-        console.log(songmid)
-        console.log(songVkey) */
-      }
     }))
+    /!* resolve(getMusicVkey(songmid, strMediaMid).then((res) => {
+      if (res.code === ERR_OK) {
+        const svkey = res.data.items
+        const songVkey = svkey[0].vkey
+        // console.log(songmid)
+        // console.log(songVkey)
+        return `http://dl.stream.qqmusic.qq.com/C400${songmid}.m4a?guid=2512456516&vkey=${songVkey}&uin=0&fromtag=66`
+      }
+    })) *!/
   })
-}
+} */
 
 export function filterSinger(singer) {
   let ret = []
