@@ -19,7 +19,7 @@
   import {ERR_OK} from 'api/config'
   import {createSong} from 'common/js/song'
   import Scroll from 'base/scroll/scroll'
-  import {getMusicVkey} from 'api/singer'
+  // import {getMusicVkey} from 'api/singer'
 
   const TYPE_SINGER = 'singer'
   const perpage = 20 // 默认显示20条数据
@@ -64,16 +64,11 @@
       _normalizeSongs(list) {
         let ret = []
         list.forEach((musicData) => {
-          let songVkey = ''
           if (musicData.songid && musicData.albummid) {
-            getMusicVkey(musicData.songmid).then((res) => {
-              if (res.code === ERR_OK) {
-                songVkey = res.data.items[0].vkey
-              }
-            })
+            ret.push(createSong(musicData))
           }
-          ret.push(createSong(musicData, songVkey, musicData.strMediaMid))
         })
+        console.log(ret)
         return ret
       },
       getIconCls(item) {
