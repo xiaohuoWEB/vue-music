@@ -40,7 +40,7 @@
     methods: {
       addQuery(query) {
         this.$refs.searchBox.setQuery(query)
-        console.log(query)
+        // console.log(query)
       },
       onQueryChange(query) {
         this.query = query

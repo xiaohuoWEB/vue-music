@@ -19,7 +19,7 @@
   import {ERR_OK} from 'api/config'
   import {createSong} from 'common/js/song'
   import Scroll from 'base/scroll/scroll'
-  // import {getMusicVkey} from 'api/singer'
+  import {getMusicVkey} from 'api/singer'
 
   const TYPE_SINGER = 'singer'
   const perpage = 20 // 默认显示20条数据
@@ -46,7 +46,7 @@
       search() { // 搜索词，第几页，显示搜索结果，数据展示数量
         search(this.query, this.page, this.showSinger, perpage).then((res) => {
           if (res.code === ERR_OK) {
-            this.result = this._genResult(res.data)
+            this.result = this.result.concat(this._genResult(res.data))
             // console.log(this._genResult(res.data))
           }
         })
@@ -65,14 +65,16 @@
         let ret = []
         list.forEach((musicData) => {
           if (musicData.songid && musicData.albummid) {
-            ret.push(createSong(musicData))
+            getMusicVkey(musicData.songmid).then(re => {
+            })
+            ret.push(...{vkey: 1})
+            console.log(ret)
+            ret = ret.concat(createSong(musicData))
           }
         })
-        console.log(ret)
         return ret
       },
       getIconCls(item) {
-        // console.log(item)
         // 如果搜索歌曲的时候item.type = 1 列表前使用音乐图标 ， 如果搜索的是歌手 item.type = singer 列表前使用user用户图标
         if (item.type === TYPE_SINGER) {
           this.avatar = true
