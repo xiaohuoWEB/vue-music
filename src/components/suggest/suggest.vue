@@ -17,9 +17,8 @@
 <script type="text/ecmascript-6">
   import {search} from 'api/search'
   import {ERR_OK} from 'api/config'
-  import {createSong} from 'common/js/song'
+  import {createSong, processSongsUrl} from 'common/js/song'
   import Scroll from 'base/scroll/scroll'
-  import {getMusicVkey} from 'api/singer'
 
   const TYPE_SINGER = 'singer'
   const perpage = 20 // 默认显示20条数据
@@ -54,22 +53,18 @@
       _genResult(data) {
         let ret = []
         if (data.zhida && data.zhida.singerid) {
-          ret.push({...data.zhida, ...{type: TYPE_SINGER}})
+          ret.push({...data.zhida, ...{type: TYPE_SINGER}, ...{test: 123}})
         }
-        if (data.song) {
-          ret = ret.concat(this._normalizeSongs(data.song.list))
-        }
-        return ret
+        return processSongsUrl(this._normalizeSongs(data.song.list)).then((songs) => {
+          ret = ret.concat(songs)
+          return ret
+        })
       },
       _normalizeSongs(list) {
         let ret = []
         list.forEach((musicData) => {
           if (musicData.songid && musicData.albummid) {
-            getMusicVkey(musicData.songmid).then(re => {
-            })
-            ret.push(...{vkey: 1})
-            console.log(ret)
-            ret = ret.concat(createSong(musicData))
+            ret.push(createSong(musicData))
           }
         })
         return ret

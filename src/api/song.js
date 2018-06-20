@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import {commonParams} from './config'
 import axios from 'axios'
 
