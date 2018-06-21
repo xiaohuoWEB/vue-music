@@ -45,6 +45,7 @@
       search() { // 搜索词，第几页，显示搜索结果，数据展示数量
         search(this.query, this.page, this.showSinger, perpage).then((res) => {
           if (res.code === ERR_OK) {
+            this.result = []
             this.result = this.result.concat(this._genResult(res.data))
           }
         })
@@ -122,7 +123,8 @@
         width: 30px
         [class^="icon-"]
           font-size: 14px
-          color: $color-text-d
+          // color: $color-text-d 原有
+          color: $color-theme
       .name
         flex: 1
         font-size: $font-size-medium
