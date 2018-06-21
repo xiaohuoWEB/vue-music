@@ -21,7 +21,7 @@ export function getSingerList() { // 歌手列表api数据接口
   return jsonp(url, data, options)
 }
 
-export function getMusicVkey(songmid, strMediaMid) {
+export function getMusicVkey(songmid, strMediaMid) { // 歌曲vkey，拼接歌曲url使用
   // const url = 'https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg'
   let strMediaMids = ''
   if (strMediaMid) {

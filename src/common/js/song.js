@@ -1,21 +1,24 @@
 import {getLyric} from 'api/song'
 import {ERR_OK} from 'api/config'
 import {Base64} from 'js-base64'
+import {getMusicVkey} from 'api/singer'
 
+// let urlMap = {}
 export default class Song {
   // 一个类必须有constructor()方法，如果没有显式定义，一个空的constructor()方法会被默认添加。
-  constructor({id, mid, singer, name, album, duration, image, url}) {
+  constructor({id, mid, strMediaMid, singer, name, album, duration, image, url}) {
     this.id = id
     this.mid = mid
+    this.strMediaMid = strMediaMid
     this.singer = singer
     this.name = name
     this.album = album
     this.duration = duration
     this.image = image
-    this.url = url
+    this._genUrl()
   }
 
-  getLyric() {
+  getLyric() { // 获取歌词数据及封装歌词接口
     if (this.lyric) {
       return Promise.resolve(this.lyric)
     }
@@ -32,18 +35,39 @@ export default class Song {
       })
     })
   }
+  _genUrl () { // 获取歌曲vkey 数据对应每首歌曲
+    if (this.url) {
+      return
+    }
+    // console.log(this.mid + '~~~~~~~~~~')
+    // console.log(this.strMediaMid)
+    let strMediaMids = ''
+    if (this.strMediaMid) {
+      strMediaMids = this.strMediaMid
+    } else {
+      strMediaMids = this.mid
+    }
+    getMusicVkey(this.mid, strMediaMids).then((res) => {
+      if (res.code === ERR_OK) {
+        const vkey = res.data.items[0].vkey
+        this.url = `http://dl.stream.qqmusic.qq.com/C400${strMediaMids}.m4a?vkey=${vkey}&guid=2512456516&uin=0&fromtag=66`
+        // urlMap[this.id] = this.url
+      }
+    })
+  }
 }
 
-export async function createSong(musicData) { // 封装 歌曲所需要的数据
+export function createSong(musicData) { // 封装 歌曲所需要的数据
   return new Song({
     id: musicData.songid,
     mid: musicData.songmid,
+    strMediaMid: musicData.strMediaMid,
     singer: filterSinger(musicData.singer),
     name: musicData.songname,
     album: musicData.albumname,
     duration: musicData.interval,
-    image: `https://y.gtimg.cn/music/photo_new/T002R300x300M000${musicData.albummid}.jpg?max_age=2592000`,
-    url: ''
+    image: `https://y.gtimg.cn/music/photo_new/T002R300x300M000${musicData.albummid}.jpg?max_age=2592000`
+    // url: await getSongURL(musicData.songmid, musicData.strMediaMid)
   })
 }
 

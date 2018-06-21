@@ -17,7 +17,7 @@
 <script type="text/ecmascript-6">
   import {search} from 'api/search'
   import {ERR_OK} from 'api/config'
-  import {createSong, processSongsUrl} from 'common/js/song'
+  import {createSong} from 'common/js/song'
   import Scroll from 'base/scroll/scroll'
 
   const TYPE_SINGER = 'singer'
@@ -46,19 +46,18 @@
         search(this.query, this.page, this.showSinger, perpage).then((res) => {
           if (res.code === ERR_OK) {
             this.result = this.result.concat(this._genResult(res.data))
-            // console.log(this._genResult(res.data))
           }
         })
       },
       _genResult(data) {
         let ret = []
         if (data.zhida && data.zhida.singerid) {
-          ret.push({...data.zhida, ...{type: TYPE_SINGER}, ...{test: 123}})
+          ret.push({...data.zhida, ...{type: TYPE_SINGER}})
         }
-        return processSongsUrl(this._normalizeSongs(data.song.list)).then((songs) => {
-          ret = ret.concat(songs)
-          return ret
-        })
+        if (data.song) {
+          ret = ret.concat(this._normalizeSongs(data.song.list))
+        }
+        return ret
       },
       _normalizeSongs(list) {
         let ret = []
@@ -67,6 +66,7 @@
             ret.push(createSong(musicData))
           }
         })
+        console.log(ret)
         return ret
       },
       getIconCls(item) {
