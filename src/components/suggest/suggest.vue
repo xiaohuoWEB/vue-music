@@ -4,7 +4,7 @@
       <li class="suggest-item" v-for="(item, index) in result" :key="index">
         <div class="icon">
           <i :class="getIconCls(item)"></i>
-          <!--<img width="20" height="20" :src="avatarimg(item)" v-show="avatar">-->
+          <img :src="avatarimg(item)" v-show="avatar(item)">
         </div>
         <div class="name">
           <p class="text" v-html="getDisplayName(item)"></p>
@@ -37,8 +37,7 @@
     data() {
       return {
         page: 1,
-        result: [],
-        avatar: false
+        result: []
       }
     },
     methods: {
@@ -52,7 +51,7 @@
       },
       _genResult(data) {
         let ret = []
-        if (data.zhida && data.zhida.singerid) {
+        if (data.zhida && data.zhida.singerid) { // 想数组内并入需要的参数
           ret.push({...data.zhida, ...{type: TYPE_SINGER}})
         }
         if (data.song) {
@@ -60,33 +59,36 @@
         }
         return ret
       },
-      _normalizeSongs(list) {
+      _normalizeSongs(list) { // 处理封装过后的数据结果 返回到本页面数据源
         let ret = []
         list.forEach((musicData) => {
           if (musicData.songid && musicData.albummid) {
             ret.push(createSong(musicData))
           }
         })
-        console.log(ret)
         return ret
       },
       getIconCls(item) {
         // 如果搜索歌曲的时候item.type = 1 列表前使用音乐图标 ， 如果搜索的是歌手 item.type = singer 列表前使用user用户图标
         if (item.type === TYPE_SINGER) {
-          this.avatar = true
           // return 'icon-mine'
         } else {
-          this.avatar = false
           return 'icon-music'
         }
       },
-      /* avatarimg(item) {
-        if (!item.singermid) {
-          return
+      avatarimg(item) { // 如果有singer列表第一个就显示歌手头像
+        if (item.type === TYPE_SINGER) {
+          return `https://y.gtimg.cn/music/photo_new/T001R300x300M000${item.singermid}.jpg?max_age=2592000`
         }
-        return `https://y.gtimg.cn/music/photo_new/T001R300x300M000${item.singermid}.jpg?max_age=2592000`
-      }, */
-      getDisplayName(item) {
+      },
+      avatar(item) { // 判断如果是搜索结果如果是歌手 列表第一个就显示歌手头像，反之如果是歌曲，列表就是音乐图标
+        if (!item.type) {
+          return false
+        } else {
+          return true
+        }
+      },
+      getDisplayName(item) { // 搜索结果列表歌曲名及对应的歌手
         if (item.type === TYPE_SINGER) {
           return item.singername
         } else {
@@ -125,6 +127,10 @@
           font-size: 14px
           // color: $color-text-d 原有
           color: $color-theme
+        img
+          width: 25px;
+          height: 25px;
+          border-radius: 50%;
       .name
         flex: 1
         font-size: $font-size-medium
