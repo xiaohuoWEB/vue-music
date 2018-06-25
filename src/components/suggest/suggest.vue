@@ -1,7 +1,12 @@
 <template>
-  <scroll :data="result" class="suggest">
+  <scroll :data="result"
+          class="suggest"
+          ref="suggest"
+          pullup="pullup"
+          @scrollToEnd="searchMore"
+  >
     <ul class="suggest-list">
-      <li class="suggest-item" v-for="(item, index) in result" :key="index">
+      <li @click="selectItem(item)" class="suggest-item" v-for="(item, index) in result" :key="index">
         <div class="icon">
           <i :class="getIconCls(item)"></i>
           <img :src="avatarimg(item)" v-show="avatar(item)">
@@ -10,7 +15,11 @@
           <p class="text" v-html="getDisplayName(item)"></p>
         </div>
       </li>
+      <loading v-show="hasMore" :title="title"></loading>
     </ul>
+    <div v-show="!hasMore && !result.length" class="no-result-wrapper">
+      <no-result :title="noresult()"></no-result>
+    </div>
   </scroll>
 </template>
 
@@ -19,6 +28,10 @@
   import {ERR_OK} from 'api/config'
   import {createSong} from 'common/js/song'
   import Scroll from 'base/scroll/scroll'
+  import Loading from 'base/loading/loading'
+  import Singer from 'common/js/singer'
+  import {mapMutations, mapActions} from 'vuex'
+  import NoResult from 'base/no-result/no-result'
 
   const TYPE_SINGER = 'singer'
   const perpage = 20 // 默认显示20条数据
@@ -32,22 +45,52 @@
       showSinger: { // 是否展示搜索结果
         type: Boolean,
         default: true
+      },
+      title: {
+        type: String,
+        default: ''
       }
     },
     data() {
       return {
         page: 1,
-        result: []
+        pullup: true, // 上拉加载传递给scroll组件进行开启功能
+        result: [],
+        hasMore: true
       }
     },
     methods: {
       search() { // 搜索词，第几页，显示搜索结果，数据展示数量
+        this.page = 1 // 默认第一个页
+        this.hasMore = true // 上拉加载更多为了显示loading组件
+        this.$refs.suggest.scrollTo(0, 0) // 当上拉加载更多停在某一个位置后，重新搜索其他内容，也就是改变了query，要重置scroll到顶部，否则不显示搜索结果
         search(this.query, this.page, this.showSinger, perpage).then((res) => {
           if (res.code === ERR_OK) {
-            this.result = []
-            this.result = this.result.concat(this._genResult(res.data))
+            this.result = this._genResult(res.data)
+            this._checkMore(res.data)
           }
         })
+      },
+      searchMore() {
+        if (!this.hasMore) {
+          return
+        }
+        this.page++
+        search(this.query, this.page, this.showSinger, perpage).then((res) => {
+          if (res.code === ERR_OK) {
+            this.result = this.result.concat(this._genResult(res.data))
+            this._checkMore(res.data)
+          }
+        })
+      },
+      _checkMore(data) {
+        const song = data.song
+        if (!song.list.length || (song.curnum + song.curpage * perpage) > song.totalnum) {
+          this.hasMore = false
+        }
+      },
+      noresult() {
+        return `抱歉，未找到与${this.query}相关的结果。`
       },
       _genResult(data) {
         let ret = []
@@ -94,7 +137,27 @@
         } else {
           return `${item.name}-${item.singer}`
         }
-      }
+      },
+      selectItem(item) {
+        if (item.type === TYPE_SINGER) {
+          const singer = new Singer({
+            id: item.singermid,
+            name: item.singername
+          })
+          this.$router.push({
+            path: `/search/${singer.id}`
+          })
+          this.setSinger(singer)
+        } else {
+          this.insertSong(item)
+        }
+      },
+      ...mapMutations({
+        setSinger: 'SET_SINGER'
+      }),
+      ...mapActions([
+        'insertSong'
+      ])
     },
     watch: {
       query() {
@@ -102,7 +165,9 @@
       }
     },
     components: {
-      Scroll
+      Scroll,
+      Loading,
+      NoResult
     }
   }
 </script>

@@ -12,3 +12,15 @@ export function shuffle(arr) { // 歌曲随机排序
   }
   return _arr
 }
+
+export function debounce(func, delay) { // 搜索组件输入框节流方法
+  let timer
+  return function (...args) {
+    if (timer) {
+      clearTimeout(timer)
+    }
+    timer = setTimeout(() => {
+      func.apply(this, args)
+    }, delay)
+  }
+}

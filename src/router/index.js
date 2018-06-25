@@ -84,7 +84,13 @@ export default new Router({
     },
     {
       path: '/search',
-      component: Search
+      component: Search,
+      children: [ // 子路由
+        {
+          path: ':id', // 以id为变量的值区分跳转到哪个页面
+          component: SingerDetail
+        }
+      ]
     }
   ]
 })
