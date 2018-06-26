@@ -2,7 +2,9 @@
   <scroll :data="result"
           class="suggest"
           ref="suggest"
-          pullup="pullup"
+          :pullup="pullup"
+          :beforeScroll="beforeScroll"
+          @beforeScroll="listScroll"
           @scrollToEnd="searchMore"
   >
     <ul class="suggest-list">
@@ -55,6 +57,7 @@
       return {
         page: 1,
         pullup: true, // 上拉加载传递给scroll组件进行开启功能
+        beforeScroll: true, // 是否派发列表滚动开始的事件
         result: [],
         hasMore: true
       }
@@ -72,18 +75,18 @@
         })
       },
       searchMore() {
-        if (!this.hasMore) {
+        if (!this.hasMore) { // 监听hasMore状态
           return
         }
         this.page++
-        search(this.query, this.page, this.showSinger, perpage).then((res) => {
+        search(this.query, this.page, this.showSinger, perpage).then((res) => { // 二次数据加载
           if (res.code === ERR_OK) {
             this.result = this.result.concat(this._genResult(res.data))
             this._checkMore(res.data)
           }
         })
       },
-      _checkMore(data) {
+      _checkMore(data) { // 计算上拉加载分页数据
         const song = data.song
         if (!song.list.length || (song.curnum + song.curpage * perpage) > song.totalnum) {
           this.hasMore = false
@@ -91,6 +94,9 @@
       },
       noresult() {
         return `抱歉，未找到与${this.query}相关的结果。`
+      },
+      listScroll() { // 触发scroll组件滚动事件
+        this.$emit('listScroll')
       },
       _genResult(data) {
         let ret = []
@@ -138,7 +144,7 @@
           return `${item.name}-${item.singer}`
         }
       },
-      selectItem(item) {
+      selectItem(item) { // 点击歌曲或者歌手跳转对应的二级页面
         if (item.type === TYPE_SINGER) {
           const singer = new Singer({
             id: item.singermid,
@@ -149,7 +155,7 @@
           })
           this.setSinger(singer)
         } else {
-          this.insertSong(item)
+          this.insertSong(item) // 记录从搜索页面点击的歌曲列表各个状态，如: 顺序，点击了几首歌曲，随机。。。
         }
       },
       ...mapMutations({
@@ -160,7 +166,7 @@
       ])
     },
     watch: {
-      query() {
+      query() { // 监听query （搜索框）数据变化
         this.search()
       }
     },

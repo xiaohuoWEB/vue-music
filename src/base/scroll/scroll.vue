@@ -54,6 +54,13 @@
         default: false
       },
       /**
+       * 是否派发列表滚动开始的事件
+       */
+      beforeScroll: {
+        type: Boolean,
+        default: false
+      },
+      /**
        * 当数据更新后，刷新scroll的延时。
        */
       refreshDelay: {

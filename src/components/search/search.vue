@@ -16,7 +16,7 @@
       </div>
     </div>
     <div class="search-result" v-show="query">
-      <suggest :query="query"></suggest>
+      <suggest @listScroll="blurInput" :query="query"></suggest>
     </div>
     <router-view></router-view>
   </div>
@@ -43,11 +43,14 @@
         this.$refs.searchBox.setQuery(query)
         // console.log(query)
       },
-      onQueryChange(query) {
+      onQueryChange(query) { // 搜索框里的文字赋值给query 传递给 suggest组件使用
         this.query = query
       },
-      _getHotKey() {
-        getHotKey().then((res) => { // 热门搜索
+      blurInput() { // 关于手机键盘触发搜索框事件
+        this.$refs.searchBox.blur()
+      },
+      _getHotKey() { // 热门搜索
+        getHotKey().then((res) => {
           if (res.code === ERR_OK) {
             console.log()
             this.hotKey = res.data.hotkey.slice(0, 10) // 只显示前10条数据
